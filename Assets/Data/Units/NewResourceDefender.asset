@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2837506abe4fba747b27214d587d22b6, type: 3}
+  m_Name: NewResourceDefender
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceDefenderData
+  unitID: ally_rongvang
+  displayName: "R\u1ED3ng V\xE0ng \u0110\u1EA5t Vi\u1EC7t"
+  faction: 0
+  category: 2
+  maxHealth: 500
+  armor: 0
+  shieldHP: 0
+  magicResistance: 0
+  upgradeTarget: {fileID: 0}
+  unlockCondition: 0
+  unlockConditionLevelIndex: 1
+  unitSprite: {fileID: -862325271441998748, guid: b38df5f0d3f4de64a815db797dbeb188, type: 3}
+  portraitSprite: {fileID: -862325271441998748, guid: b38df5f0d3f4de64a815db797dbeb188, type: 3}
+  unitPrefab: {fileID: 7717568645778232233, guid: 870d1f371ac665b4a92f471996dc0d8a, type: 3}
+  placementCost: 50
+  sellRefundRate: 0.6
+  upgradeCost: 0
+  produceCooldown: 5
+  resourceAmount: 25
+  resourcePrefab: {fileID: 7717568645778232233, guid: 870d1f371ac665b4a92f471996dc0d8a, type: 3}

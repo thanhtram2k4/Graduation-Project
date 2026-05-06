@@ -1,0 +1,46 @@
+# This file is used to ignore files from being added to the repository
+# Ignore all files in the Library directory
+/Library/
+
+# Ignore all files in the Temp directory
+/Temp/
+
+# Ignore all files in the Logs directory
+/Logs/
+
+# Ignore the UserSettings directory
+/UserSettings/
+
+# Ignore Visual Studio cache/options directory
+.vs/
+
+# Ignore Rider IDE cache
+.idea/
+.idea_modules/
+*.sln.iml
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore local IDE settings
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# Ignore build outputs
+/Build/
+/Builds/
+*.exe
+*.app
+*.bundle
+
+# Ignore .meta files in certain cases (Unity metadata)
+# Generally we want to keep .meta files, so this is commented out
+# *.meta
+
+# Ignore third-party packages (optional, uncomment if needed)
+# /Assets/Plugins/
+
+# Ignore editor-only builds
+EditorOnlyBuild/
