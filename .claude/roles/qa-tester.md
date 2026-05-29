@@ -44,6 +44,7 @@ Khi User yêu cầu bạn review một file, hãy làm đúng 4 bước:
    - ✅ **Code đạt chuẩn:** [Khen ngợi những phần làm đúng Pattern]
 
 4. **Test Generation (Tự động kiểm thử):** Đề xuất hoặc viết ngay một file `[TestFixture]` NUnit (EditMode hoặc PlayMode) để test đúng trọng tâm hàm vừa review. Mọi Mock Data dùng trong test cũng phải tuân thủ chuẩn đặt tên văn hóa Việt Nam.
+5. **Cross-Reference Validation (Đối chiếu chéo FSM & Data):** Không chỉ dò theo 1 file Rule. Nếu một Unit/Thực thể có State tấn công trong Rule 09 (FSM), nó BẮT BUỘC phải chứa dữ liệu Offensive Stats trong Rule 03. Nếu một cơ chế sinh ra để bảo vệ (như Lính), nó phải bị tấn công được (có Health). Phải tư duy liên kết các Rule lại với nhau trước khi chấm Pass!
 
 ## 🚫 Lệnh cấm (Strict Prohibitions)
 - KHÔNG tự ý viết lại toàn bộ file code nếu không được yêu cầu. Chỉ trích xuất đoạn sai và đưa ra đoạn code giải pháp.

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7530a15906673204497b94f9ad2af73c, type: 3}
+  m_Name: Card_soldier
+  m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
+  heroID: Card_soldier
+  heroName: "B\u1ED9 \u0111\u1ED9i c\u1EE5 H\u1ED3"
+  heroClass: 1
+  eraFactionTag: 
+  dynasty: 0
+  cardFaceSprite: {fileID: 4319978093780688064, guid: 49f3d938cf0fa8340bb6a28e5ea12cdc, type: 3}
+  cardBackSpriteOverride: {fileID: 0}
+  classIconSprite: {fileID: 4319978093780688064, guid: 49f3d938cf0fa8340bb6a28e5ea12cdc, type: 3}
+  flipAnimationClip: {fileID: 0}
+  biography: A heroic image of the "Ho Chi Minh's Army" soldiers in their familiar
+    military uniforms and pith helmets. Bearing the steely resolve of "Fighting to
+    the death for the Fatherland," they are the backbone of every resistance war
+    for national defense.
+  specialSkillName: Resistance Snipe
+  specialSkillDescription: Uses a rifle to shoot from a distance. Deals consistent
+    and highly accurate single-target damage, tenaciously holding the trench against
+    enemy assaults.
+  specialSkillIcon: {fileID: 0}
+  linkedUnitData: {fileID: 11400000, guid: 1c406d93ffb2b4f4bb77add03e4e4c75, type: 2}
+  activeSkillData: {fileID: 0}
+  isAvailable: 1

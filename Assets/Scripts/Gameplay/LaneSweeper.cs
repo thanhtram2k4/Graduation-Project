@@ -98,10 +98,13 @@ public class LaneSweeper : MonoBehaviour
         position.x += sweepSpeed * Time.deltaTime;
         transform.position = position;
 
-        // Destroy self when past the right grid boundary.
+        // Release to pool when past the right grid boundary (Rule 07).
         if (position.x >= destroyBoundaryX)
         {
-            Destroy(gameObject);
+            if (ObjectPoolManager.Instance != null)
+                ObjectPoolManager.Instance.Release(gameObject);
+            else
+                Destroy(gameObject);
         }
     }
 
@@ -109,26 +112,59 @@ public class LaneSweeper : MonoBehaviour
     // COLLISION — TRIGGER-BASED
     // ─────────────────────────────────────────────────────────────────────────
 
+    // Same-lane Y tolerance — matches the lane-targeting tolerance used by
+    // Hero detection (Rule 02 §2.1.5). One cellSize == 1 → half a lane.
+    private const float LANE_Y_TOLERANCE = 0.5f;
+
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (!other.CompareTag("Enemy")) return;
+
+        // ── Defensive guards (Rule 02 + spawn-instant-death fix) ────────────
+        //
+        // Two guards close the "enemies die on spawn" leak that surfaces when
+        // the level config has spawnColumn coinciding with baseColumn (or any
+        // other arrangement that places a spawn point on top of a sweeper).
+        //
+        // 1) LANE-LOCK: a sweeper defends ONE lane (Rule 02 §2.1.4 — lanes
+        //    are fully independent). If an enemy from a different row clips
+        //    into our trigger collider, ignore it. The enemy's transform Y is
+        //    the authoritative lane indicator, not the collider geometry.
+        //
+        // 2) SPAWN GRACE: if the enemy was activated from the pool within the
+        //    last Enemy.SPAWN_GRACE_SECONDS, it hasn't actually *travelled*
+        //    into this sweeper — it spawned overlapping us. Semantically the
+        //    sweeper triggers only on "an enemy reaching the base", which
+        //    requires motion. Without this guard, instant kill at birth.
+
+        // Guard 1 — lane-lock by pivot Y.
+        float dy = Mathf.Abs(other.transform.position.y - transform.position.y);
+        if (dy >= LANE_Y_TOLERANCE) return;
+
+        // Guard 2 — spawn-grace.
+        Enemy enemyFacade = other.GetComponent<Enemy>();
+        if (enemyFacade != null && enemyFacade.JustSpawned)
+        {
+            Debug.LogWarning($"[LaneSweeper] Ignored '{other.name}' overlapping at spawn " +
+                             "(within Enemy.SPAWN_GRACE_SECONDS). This usually means the " +
+                             "level config places spawnColumn on top of baseColumn — fix " +
+                             "the LevelConfig asset so spawnColumn = gridColumns - 1 and " +
+                             "baseColumn = 0 (Rule 02 §2.1.1).", this);
+            return;
+        }
+
         // --- IDLE: an enemy reaching the sweeper triggers the charge ---
         if (currentState == SweeperState.Idle)
         {
-            if (other.CompareTag("Enemy"))
-            {
-                ActivateSweep();
-                HandleEnemyContact(other);
-            }
+            ActivateSweep();
+            HandleEnemyContact(other);
             return;
         }
 
         // --- SWEEPING: destroy every enemy contacted during the charge ---
         if (currentState == SweeperState.Sweeping)
         {
-            if (other.CompareTag("Enemy"))
-            {
-                HandleEnemyContact(other);
-            }
+            HandleEnemyContact(other);
         }
     }
 
@@ -156,11 +192,21 @@ public class LaneSweeper : MonoBehaviour
     /// <param name="enemyCollider">The enemy's trigger collider.</param>
     private void HandleEnemyContact(Collider2D enemyCollider)
     {
-        // Phase 3 draft: direct Destroy. Production code should call
-        // enemyCollider.GetComponent<HealthComponent>().ForceKill() instead,
-        // which triggers the EnemyDieState FSM transition and event pipeline.
-        // Note: No kill reward is granted for sweeper kills (same as PvZ
-        // lawnmower behaviour — the enemy is removed, not "defeated").
-        Destroy(enemyCollider.gameObject);
+        // Use HealthComponent to trigger the proper death pipeline.
+        // No kill reward for sweeper kills (same as PvZ lawnmower behaviour).
+        HealthComponent health = enemyCollider.GetComponent<HealthComponent>();
+        if (health != null)
+        {
+            // Deal massive True damage to instantly kill
+            health.TakeDamage(99999f, DamageType.True);
+        }
+        else if (ObjectPoolManager.Instance != null)
+        {
+            ObjectPoolManager.Instance.Release(enemyCollider.gameObject);
+        }
+        else
+        {
+            Destroy(enemyCollider.gameObject);
+        }
     }
 }

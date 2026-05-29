@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7530a15906673204497b94f9ad2af73c, type: 3}
+  m_Name: Card_rongvang
+  m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
+  heroID: Card_rongvang
+  heroName: "R\u1ED3ng V\xE0ng \u0110\u1EA5t Vi\u1EC7t"
+  heroClass: 2
+  eraFactionTag: 
+  dynasty: 10
+  cardFaceSprite: {fileID: -4073354373329374380, guid: ac0c65e6fecdb7744a65aee74c087554, type: 3}
+  cardBackSpriteOverride: {fileID: 0}
+  classIconSprite: {fileID: -4073354373329374380, guid: ac0c65e6fecdb7744a65aee74c087554, type: 3}
+  flipAnimationClip: {fileID: 0}
+  biography: The embodiment of National Ancestor Lac Long Quan, the origin of the
+    Vietnamese nation. Bearing noble blood, the Golden Dragon is the ultimate symbol
+    of strength, pride, and the great unity of "Children of the Dragon and the Immortal."
+    His presence bestows blessings and vitality upon the entire front line.
+  specialSkillName: Origins of the Hundred Viet
+  specialSkillDescription: Periodically drops "Dragon & Fairy Eggs". Players collect
+    Dragon Eggs to accumulate resources (Mana/Sun), which can then be used to recruit
+    additional generals and soldiers to join the battle.
+  specialSkillIcon: {fileID: 0}
+  linkedUnitData: {fileID: 11400000, guid: ceeb69ca89ae0e5488dcc21b33a1a5e5, type: 2}
+  activeSkillData: {fileID: 0}
+  isAvailable: 1

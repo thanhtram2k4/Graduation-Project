@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ff654db350d64047892c0a1e72e5393, type: 3}
+  m_Name: ally_thanhgiong
+  m_EditorClassIdentifier: Assembly-CSharp::CombatDefenderData
+  unitID: ally_thanhgiong
+  displayName: "Th\xE1nh Gi\xF3ng"
+  faction: 0
+  category: 0
+  maxHealth: 600
+  armor: 0
+  shieldHP: 0
+  magicResistance: 0
+  upgradeTarget: {fileID: 11400000}
+  unlockCondition: 0
+  unlockConditionLevelIndex: 1
+  unitSprite: {fileID: -1546443605270290197, guid: cb810832522e0d34a9dbf9ec805ed824, type: 3}
+  portraitSprite: {fileID: -1546443605270290197, guid: cb810832522e0d34a9dbf9ec805ed824, type: 3}
+  unitPrefab: {fileID: 3966552633068677632, guid: 76878577452913b48915e151ae5e257e, type: 3}
+  placementCost: 150
+  sellRefundRate: 0.6
+  upgradeCost: 0
+  baseDamage: 10
+  damageType: 1
+  attackRange: 3
+  attackCooldown: 1
+  projectileSpeed: 0
+  detectionRadius: 4

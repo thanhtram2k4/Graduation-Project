@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12724aa58ab458e43ac1ee518e6026ba, type: 3}
+  m_Name: Unit_enemy_basic
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyUnitData
+  unitID: Unit_enemy_basic
+  displayName: "B\u1ED9 binh"
+  faction: 1
+  category: 1
+  maxHealth: 1000
+  armor: 5
+  shieldHP: 5
+  magicResistance: 0
+  upgradeTarget: {fileID: 11400000}
+  unlockCondition: 0
+  unlockConditionLevelIndex: 1
+  unitSprite: {fileID: 3678070638124790332, guid: 8b048207455f875428f744a316471dd5, type: 3}
+  portraitSprite: {fileID: 3678070638124790332, guid: 8b048207455f875428f744a316471dd5, type: 3}
+  unitPrefab: {fileID: 2837777235936870783, guid: e724219b10c9c3245b8817003ab398d8, type: 3}
+  baseDamage: 100
+  damageType: 0
+  attackRange: 10
+  attackCooldown: 1
+  projectileSpeed: 2
+  moveSpeed: 0.3
+  detectionRadius: 5
+  killReward: 10
+  baseDamageOnReach: 1

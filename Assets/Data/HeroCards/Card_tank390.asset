@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7530a15906673204497b94f9ad2af73c, type: 3}
+  m_Name: Card_tank390
+  m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
+  heroID: Card_tank390
+  heroName: "Xe t\u0103ng 390"
+  heroClass: 1
+  eraFactionTag: 
+  dynasty: 0
+  cardFaceSprite: {fileID: 7482957942664187643, guid: 843e7365cf85fc44ab2e3e1ac8354051, type: 3}
+  cardBackSpriteOverride: {fileID: 0}
+  classIconSprite: {fileID: 7482957942664187643, guid: 843e7365cf85fc44ab2e3e1ac8354051, type: 3}
+  flipAnimationClip: {fileID: 0}
+  biography: A witness to a great history - the armored tank that rammed through
+    the gates of the Independence Palace at noon on April 30, 1975. Carrying the
+    spirit of "Speed, even greater speed," this machine crushed all the ambitions
+    of the invaders.
+  specialSkillName: Liberation Blitz
+  specialSkillDescription: Fixes position and unleashes a barrage of artillery fire
+    at high speed. Long range and extremely high melee damage, wiping out even the
+    most resilient enemy units.
+  specialSkillIcon: {fileID: 0}
+  linkedUnitData: {fileID: 11400000, guid: 0413bd1db30cf4346a0f945db5deac5e, type: 2}
+  activeSkillData: {fileID: 0}
+  isAvailable: 1

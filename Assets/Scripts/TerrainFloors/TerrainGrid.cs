@@ -16,6 +16,11 @@ public class TerrainGrid : MonoBehaviour
         cells = new TerrainCell[rows, columns];
     }
 
+    private void Start()
+    {
+        GenerateGrid();
+    }
+
     public void GenerateGrid()
     {
         if (cellPrefab == null) return;

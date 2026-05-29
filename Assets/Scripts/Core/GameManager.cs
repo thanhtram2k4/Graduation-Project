@@ -1,8 +1,12 @@
 using UnityEngine;
 
 /// <summary>
-/// Temporary game manager for Phase 2. Will be decomposed into
-/// LevelStateManager, EconomyManager, and PauseManager in Phase 3.
+/// Central bootstrapper and session-state holder. Owns the LevelConfig
+/// reference and coordinates initialization of subsystems (EconomyManager,
+/// future LevelStateManager, PauseManager).
+///
+/// Gold logic has been extracted to <see cref="EconomyManager"/> (C8).
+/// Remaining GameOver/GameWin will be replaced by LevelStateManager (C7).
 /// </summary>
 public class GameManager : MonoBehaviour
 {
@@ -14,9 +18,17 @@ public class GameManager : MonoBehaviour
     public LevelConfig currentLevelConfig;
 
     [Header("Runtime State (read-only at runtime)")]
-    public int currentGold;
     public bool isGameOver;
     public bool isGameWon;
+
+    /// <summary>
+    /// Convenience property: reads Gold from EconomyManager.
+    /// Exists for backward compatibility during refactoring — new code should
+    /// use EconomyManager.Instance.CurrentGold directly.
+    /// </summary>
+    public int currentGold => EconomyManager.Instance != null
+        ? EconomyManager.Instance.CurrentGold
+        : 0;
 
     private void Awake()
     {
@@ -33,60 +45,56 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Read starting gold from the data-driven LevelConfig ScriptableObject
-        // instead of a hardcoded value (Rule 01, Rule 07).
-        if (currentLevelConfig != null)
+        // Initialize EconomyManager with level config (data-driven, Rule 01/03)
+        if (EconomyManager.Instance != null && currentLevelConfig != null)
         {
-            currentGold = currentLevelConfig.startingGold;
+            EconomyManager.Instance.InitializeForLevel(currentLevelConfig);
         }
-        else
+        else if (currentLevelConfig == null)
         {
-            Debug.LogError("[GameManager] currentLevelConfig is not assigned! " +
-                           "Starting Gold cannot be determined.", this);
-            currentGold = 0;
+            Debug.LogError("[GameManager] currentLevelConfig is not assigned!", this);
         }
 
         isGameOver = false;
         isGameWon = false;
     }
 
+    /// <summary>
+    /// Delegates to EconomyManager. Exists for backward compatibility
+    /// during refactoring — new code should call EconomyManager directly.
+    /// </summary>
     public bool SpendGold(int amount)
     {
-        if (currentGold >= amount)
-        {
-            currentGold -= amount;
-            // TODO Phase 3: Publish GoldChangedEvent on GameEventBus
-            return true;
-        }
-        return false;
+        if (EconomyManager.Instance == null) return false;
+        return EconomyManager.Instance.SpendGold(amount);
     }
 
+    /// <summary>
+    /// Delegates to EconomyManager. Exists for backward compatibility
+    /// during refactoring — new code should call EconomyManager directly.
+    /// </summary>
     public void AddGold(int amount)
     {
-        currentGold += amount;
-        // TODO Phase 3: Publish GoldChangedEvent on GameEventBus
+        if (EconomyManager.Instance == null) return;
+        EconomyManager.Instance.AddGold(amount);
     }
 
     public void GameOver()
     {
         isGameOver = true;
-        // NOTE: Time.timeScale manipulation removed.
-        // Will be handled by PauseManager in Phase 3 (Rule 10).
+        GameEventBus.Publish(new DefeatEvent());
         Debug.Log("Game Over!");
     }
 
     public void GameWin()
     {
         isGameWon = true;
-        // NOTE: Time.timeScale manipulation removed.
-        // Will be handled by PauseManager in Phase 3 (Rule 10).
         Debug.Log("You Win!");
     }
 
     public void RestartGame()
     {
-        // NOTE: Time.timeScale reset removed.
-        // Will be handled by PauseManager in Phase 3 (Rule 10).
+        GameEventBus.Reset();
         UnityEngine.SceneManagement.SceneManager.LoadScene(
             UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
     }

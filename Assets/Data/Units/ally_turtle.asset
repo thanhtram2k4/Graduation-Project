@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ff654db350d64047892c0a1e72e5393, type: 3}
+  m_Name: ally_turtle
+  m_EditorClassIdentifier: Assembly-CSharp::CombatDefenderData
+  unitID: ally_turtle
+  displayName: "R\xF9a Ho\xE0n Ki\u1EBFm"
+  faction: 0
+  category: 4
+  maxHealth: 1000
+  armor: 5
+  shieldHP: 1000
+  magicResistance: 0
+  upgradeTarget: {fileID: 11400000}
+  unlockCondition: 0
+  unlockConditionLevelIndex: 1
+  unitSprite: {fileID: -7532443353262243513, guid: 80c9f46a99aa1f840971e993e2bbce80, type: 3}
+  portraitSprite: {fileID: -7532443353262243513, guid: 80c9f46a99aa1f840971e993e2bbce80, type: 3}
+  unitPrefab: {fileID: 48420394544148845, guid: bc3c81d41cf0566459fea560e4e5e8d1, type: 3}
+  placementCost: 50
+  sellRefundRate: 0.6
+  upgradeCost: 0
+  baseDamage: 0
+  damageType: 0
+  attackRange: 0.1
+  attackCooldown: 0.1
+  projectileSpeed: 0
+  detectionRadius: 1

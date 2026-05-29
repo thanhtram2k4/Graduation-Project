@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1578185bb4c1ff14a8b9a9f85ad8a7dd, type: 3}
+  m_Name: MainPoolConfig
+  m_EditorClassIdentifier: Assembly-CSharp::PoolConfig
+  entries:
+  - poolName: "\u0110\u1EA1n B\u1ED9 \u0110\u1ED9i"
+    prefab: {fileID: 3944099320571399198, guid: 335d31a3d505a8444949d598828e3769, type: 3}
+    initialSize: 1000
+  - poolName: "\u0110\u1ECBch"
+    prefab: {fileID: 2837777235936870783, guid: e724219b10c9c3245b8817003ab398d8, type: 3}
+    initialSize: 20

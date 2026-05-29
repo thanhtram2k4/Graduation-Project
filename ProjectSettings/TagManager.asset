@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags:
   - Hero
   - Enemy
@@ -12,57 +12,38 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  -
+  - Enemy
   - Water
   - UI
-  - Hero
-  - Enemy
-  - Projectile
   - Terrain
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
-  -
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
   m_SortingLayers:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Background
-    uniqueID: 1
-    locked: 0
-  - name: Terrain
-    uniqueID: 2
-    locked: 0
-  - name: Heroes
-    uniqueID: 3
-    locked: 0
-  - name: Enemies
-    uniqueID: 4
-    locked: 0
-  - name: Projectiles
-    uniqueID: 5
-    locked: 0
-  - name: Effects
-    uniqueID: 6
-    locked: 0
-  - name: UI
-    uniqueID: 7
-    locked: 0
+  m_RenderingLayers:
+  - Default

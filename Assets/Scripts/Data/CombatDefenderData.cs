@@ -44,6 +44,30 @@ public class CombatDefenderData : DefenderUnitData
     public float projectileSpeed = 0f;
 
     // ─────────────────────────────────────────────────────────────────────────
+    // HYBRID AOE (optional — only used by units like Thánh Gióng whose attack
+    // pairs a primary melee strike with an AoE effect around the target)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    [Header("Hybrid AoE (optional)")]
+
+    [Tooltip("Radius (grid units) of the secondary AoE blast centred on the primary target. " +
+             "Set to 0 to disable AoE — the unit then attacks single-target only. " +
+             "Used by AttackComponent.DealHybridMeleeDamage when triggered by " +
+             "AnimEvent_DealHybridDamage on the attack animation.")]
+    [Min(0f)]
+    public float aoeRadius = 0f;
+
+    [Tooltip("Raw damage of the secondary AoE blast (e.g., Iron Horse fire breath). " +
+             "Applied to each non-primary target inside aoeRadius. 0 disables AoE damage.")]
+    [Min(0f)]
+    public float aoeDamage = 0f;
+
+    [Tooltip("Damage type for the AoE blast. Physical interacts with target Armor; " +
+             "Magical with MagicResistance; True bypasses both. Fire breath is " +
+             "conventionally Magical.")]
+    public DamageType aoeDamageType = DamageType.Magical;
+
+    // ─────────────────────────────────────────────────────────────────────────
     // MOBILITY
     // ─────────────────────────────────────────────────────────────────────────
 

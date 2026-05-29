@@ -13,6 +13,37 @@ using UnityEngine;
 public class EnemyUnitData : BaseUnitData
 {
     // ─────────────────────────────────────────────────────────────────────────
+    // OFFENSIVE STATS
+    // ─────────────────────────────────────────────────────────────────────────
+
+    [Header("Offensive Stats")]
+
+    [Tooltip("Raw damage value before any modifiers are applied. " +
+             "Fed into the damage calculation pipeline (Section 3.1.4).")]
+    [Min(0f)]
+    public float baseDamage = 10f;
+
+    [Tooltip("Determines which defence stat the target uses to mitigate this " +
+             "unit's damage (Physical → Armor, Magical → Magic Resistance, " +
+             "True → bypasses all).")]
+    public DamageType damageType = DamageType.Physical;
+
+    [Tooltip("Maximum distance (in grid units) at which this enemy can " +
+             "engage a blocking troop. For melee enemies keep this at ~1.")]
+    [Min(0f)]
+    public float attackRange = 1f;
+
+    [Tooltip("Minimum time in seconds between consecutive attacks. " +
+             "Used by EnemyAttackState to reset _attackCooldown.")]
+    [Min(0.1f)]
+    public float attackCooldown = 1.5f;
+
+    [Tooltip("Speed of the projectile in world-units per second. " +
+             "Set to 0 for instant-hit / melee attacks.")]
+    [Min(0f)]
+    public float projectileSpeed = 0f;
+
+    // ─────────────────────────────────────────────────────────────────────────
     // MOBILITY
     // ─────────────────────────────────────────────────────────────────────────
 
