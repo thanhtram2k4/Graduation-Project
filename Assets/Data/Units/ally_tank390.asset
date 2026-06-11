@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: "Xe t\u0103ng 390"
   faction: 0
   category: 0
-  maxHealth: 600
+  maxHealth: 900
   armor: 0
   shieldHP: 0
   magicResistance: 0
@@ -34,4 +34,7 @@ MonoBehaviour:
   attackRange: 2
   attackCooldown: 1
   projectileSpeed: 0
+  aoeRadius: 0
+  aoeDamage: 0
+  aoeDamageType: 1
   detectionRadius: 3

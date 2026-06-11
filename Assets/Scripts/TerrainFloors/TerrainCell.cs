@@ -10,6 +10,11 @@ public class TerrainCell : MonoBehaviour
     public bool isOccupied;
     public Hero placedHero;
 
+    // Cached HealthComponent of the placed hero — used exclusively for
+    // subscribing/unsubscribing to OnHealthDepleted. No other Hero.cs
+    // logic is accessed through this reference (component-based rule).
+    private HealthComponent _placedHealth;
+
     /// <summary>
     /// Attempts to place a hero on this cell. Uses ObjectPoolManager.Get()
     /// instead of Instantiate (Rule 07). Deducts gold via EconomyManager.
@@ -41,6 +46,13 @@ public class TerrainCell : MonoBehaviour
         placedHero = heroObj.GetComponent<Hero>();
         isOccupied = true;
 
+        // Subscribe to the hero's death so the cell auto-clears (Rule 07:
+        // event-driven, no polling). Uses HealthComponent directly — no
+        // coupling to Hero.cs logic.
+        _placedHealth = heroObj.GetComponent<HealthComponent>();
+        if (_placedHealth != null)
+            _placedHealth.OnHealthDepleted += HandleHeroDeath;
+
         // Publish placement event for AudioManager / analytics
         GameEventBus.Publish(new TroopPlacedEvent
         {
@@ -54,13 +66,15 @@ public class TerrainCell : MonoBehaviour
     }
 
     /// <summary>
-    /// Removes the hero from this cell. Returns the unit to the pool
-    /// instead of Destroy (Rule 07).
+    /// Removes the hero from this cell (player-initiated sell/reposition).
+    /// Returns the unit to the pool instead of Destroy (Rule 07).
     /// </summary>
     public void RemoveHero()
     {
         if (placedHero != null)
         {
+            UnsubscribeFromHero();
+
             // Pool.Release() instead of Destroy (Rule 07)
             if (ObjectPoolManager.Instance != null)
                 ObjectPoolManager.Instance.Release(placedHero.gameObject);
@@ -69,6 +83,33 @@ public class TerrainCell : MonoBehaviour
 
             placedHero = null;
             isOccupied = false;
+        }
+    }
+
+    /// <summary>
+    /// Called when the placed hero's HP reaches zero. Clears the cell so a
+    /// new unit can be placed here. The hero's own death handler
+    /// (Hero.HandleDeath) handles pool release — this method only manages
+    /// the cell's occupancy state.
+    /// </summary>
+    private void HandleHeroDeath()
+    {
+        UnsubscribeFromHero();
+        placedHero = null;
+        isOccupied = false;
+    }
+
+    /// <summary>
+    /// Unsubscribes from the current hero's <see cref="HealthComponent.OnHealthDepleted"/>
+    /// to prevent memory leaks and stale callbacks (Rule 07). Safe to call
+    /// when no hero is placed or when already unsubscribed.
+    /// </summary>
+    private void UnsubscribeFromHero()
+    {
+        if (_placedHealth != null)
+        {
+            _placedHealth.OnHealthDepleted -= HandleHeroDeath;
+            _placedHealth = null;
         }
     }
 }

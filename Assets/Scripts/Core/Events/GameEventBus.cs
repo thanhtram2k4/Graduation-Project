@@ -100,6 +100,9 @@ public static class GameEventBus
     /// <summary>Raised when level state transitions.</summary>
     public static event Action<LevelStateChangedEvent> OnLevelStateChanged;
 
+    /// <summary>Raised by UI to request the start of wave spawning (Preparing → Defending).</summary>
+    public static event Action<StartWaveRequestedEvent> OnStartWaveRequested;
+
     // ─────────────────────────────────────────────────────────────────────────
     // PAUSE
     // ─────────────────────────────────────────────────────────────────────────
@@ -125,6 +128,30 @@ public static class GameEventBus
 
     /// <summary>Raised when a hero is accepted into lineup.</summary>
     public static event Action<HeroAcceptedEvent> OnHeroAccepted;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ACTIVE SKILL (Board-Level)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>Raised by UI to request an Egg Shower activation.</summary>
+    public static event Action<RequestEggShowerEvent> OnEggShowerRequested;
+
+    /// <summary>Raised by EggShowerManager after eggs are spawned.</summary>
+    public static event Action<EggShowerActivatedEvent> OnEggShowerActivated;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // RESOURCE
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>Raised when a player collects a resource pickup.</summary>
+    public static event Action<ResourceCollectedEvent> OnResourceCollected;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // LANE SWEEPER
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>Raised when a lane sweeper begins its charge.</summary>
+    public static event Action<LaneSweeperTriggeredEvent> OnLaneSweeperTriggered;
 
     // ─────────────────────────────────────────────────────────────────────────
     // UI
@@ -168,12 +195,23 @@ public static class GameEventBus
 
     // Level State
     public static void Publish(LevelStateChangedEvent evt) => OnLevelStateChanged?.Invoke(evt);
+    public static void Publish(StartWaveRequestedEvent evt) => OnStartWaveRequested?.Invoke(evt);
 
     // Pause
     public static void Publish(GamePausedEvent evt) => OnGamePaused?.Invoke(evt);
     public static void Publish(GameResumedEvent evt) => OnGameResumed?.Invoke(evt);
     public static void Publish(ResumeRequestedEvent evt) => OnResumeRequested?.Invoke(evt);
     public static void Publish(LevelRestartRequestedEvent evt) => OnLevelRestartRequested?.Invoke(evt);
+
+    // Active Skill (Board-Level)
+    public static void Publish(RequestEggShowerEvent evt) => OnEggShowerRequested?.Invoke(evt);
+    public static void Publish(EggShowerActivatedEvent evt) => OnEggShowerActivated?.Invoke(evt);
+
+    // Resource
+    public static void Publish(ResourceCollectedEvent evt) => OnResourceCollected?.Invoke(evt);
+
+    // Lane Sweeper
+    public static void Publish(LaneSweeperTriggeredEvent evt) => OnLaneSweeperTriggered?.Invoke(evt);
 
     // Draft
     public static void Publish(CardFlippedEvent evt) => OnCardFlipped?.Invoke(evt);
@@ -214,14 +252,22 @@ public static class GameEventBus
         OnSkillExecuted = null;
 
         OnLevelStateChanged = null;
+        OnStartWaveRequested = null;
 
         OnGamePaused = null;
         OnGameResumed = null;
         OnResumeRequested = null;
         OnLevelRestartRequested = null;
 
+        OnEggShowerRequested = null;
+        OnEggShowerActivated = null;
+
+        OnResourceCollected = null;
+
         OnCardFlipped = null;
         OnHeroAccepted = null;
+
+        OnLaneSweeperTriggered = null;
 
         OnButtonClick = null;
         OnSceneContextChanged = null;

@@ -185,9 +185,28 @@ public class Hero : MonoBehaviour
                 }
             }
         }
+        else if (unitData is ResourceDefenderData resourceData)
+        {
+            _isCombatUnit = false;
+            _isRangedUnit = false;
+
+            var generator = GetComponent<ResourceGeneratorComponent>();
+            if (generator != null)
+            {
+                generator.Initialize(
+                    resourceData.produceCooldown,
+                    resourceData.resourceAmount,
+                    resourceData.resourcePrefab);
+            }
+            else
+            {
+                Debug.LogWarning($"[Hero] '{resourceData.displayName}' is a ResourceDefenderData " +
+                                 "but has no ResourceGeneratorComponent on its prefab.", this);
+            }
+        }
         else
         {
-            // ResourceDefenderData or other non-combat subtypes
+            // Future non-combat subtypes
             _isCombatUnit = false;
             _isRangedUnit = false;
         }

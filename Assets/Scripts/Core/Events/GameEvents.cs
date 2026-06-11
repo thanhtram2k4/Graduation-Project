@@ -250,6 +250,14 @@ public struct LevelStateChangedEvent
     public LevelState NewState;
 }
 
+/// <summary>
+/// Published by the UI layer to request the start of wave spawning.
+/// The LevelStateManager subscribes to this event and transitions
+/// from Preparing to Defending state.
+/// Follows Rule 07: UI publishes request events; gameplay reacts.
+/// </summary>
+public struct StartWaveRequestedEvent { }
+
 // ─────────────────────────────────────────────────────────────────────────────
 // PAUSE EVENTS
 // ─────────────────────────────────────────────────────────────────────────────
@@ -280,6 +288,64 @@ public struct CardFlippedEvent
 public struct HeroAcceptedEvent
 {
     public string HeroID;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ACTIVE SKILL EVENTS (Board-Level)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Published by the UI layer to request an Egg Shower skill activation.
+/// Subscribers: EggShowerManager (gameplay layer) handles the actual spawn.
+/// The UI publishes; gameplay reacts — maintaining UI-Gameplay separation (Rule 07).
+/// </summary>
+public struct RequestEggShowerEvent { }
+
+/// <summary>
+/// Published by EggShowerManager after successfully spawning eggs.
+/// Subscribers: SkillButtonUI (starts cooldown visual), AudioManager (SFX).
+/// </summary>
+public struct EggShowerActivatedEvent
+{
+    /// <summary>Number of eggs spawned this activation.</summary>
+    public int EggsSpawned;
+
+    /// <summary>Cooldown duration so the UI can display the radial fill.</summary>
+    public float CooldownDuration;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RESOURCE EVENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Published when a player collects a resource pickup (e.g., Dragon Egg).
+/// Subscribers: AudioManager (collect SFX), UI (floating Gold text).
+/// </summary>
+public struct ResourceCollectedEvent
+{
+    /// <summary>Gold amount granted by this pickup.</summary>
+    public int GoldAmount;
+
+    /// <summary>World position of the collected resource (for VFX/floating text).</summary>
+    public Vector3 Position;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LANE SWEEPER EVENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Published when a LaneSweeper transitions from Idle to Sweeping state.
+/// Subscribers: AudioManager (war elephant charge SFX), VFX (dust trail, camera shake).
+/// </summary>
+public struct LaneSweeperTriggeredEvent
+{
+    /// <summary>World position where the sweep was triggered.</summary>
+    public Vector3 Position;
+
+    /// <summary>Lane index (row) the sweeper is charging through.</summary>
+    public int LaneIndex;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

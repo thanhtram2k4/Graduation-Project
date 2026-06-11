@@ -122,11 +122,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 220
-        width: 177
-        height: 196
+        y: 226
+        width: 159
+        height: 176
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -143,12 +143,12 @@ TextureImporter:
       name: "\u0110\u1ECBch spritesheet_1"
       rect:
         serializedVersion: 2
-        x: 171
-        y: 220
-        width: 188
-        height: 193
+        x: 180
+        y: 225
+        width: 155
+        height: 177
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -165,12 +165,12 @@ TextureImporter:
       name: "\u0110\u1ECBch spritesheet_2"
       rect:
         serializedVersion: 2
-        x: 364
-        y: 220
-        width: 179
-        height: 201
+        x: 369
+        y: 226
+        width: 154
+        height: 176
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -187,12 +187,12 @@ TextureImporter:
       name: "\u0110\u1ECBch spritesheet_3"
       rect:
         serializedVersion: 2
-        x: 0
-        y: 2
-        width: 172
-        height: 201
+        x: 6
+        y: 16
+        width: 157
+        height: 190
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -209,12 +209,12 @@ TextureImporter:
       name: "\u0110\u1ECBch spritesheet_4"
       rect:
         serializedVersion: 2
-        x: 168
-        y: 78
-        width: 14
-        height: 45
+        x: 170
+        y: 16
+        width: 159
+        height: 190
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -231,12 +231,12 @@ TextureImporter:
       name: "\u0110\u1ECBch spritesheet_5"
       rect:
         serializedVersion: 2
-        x: 172
-        y: 2
-        width: 188
-        height: 206
+        x: 340
+        y: 16
+        width: 190
+        height: 189
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -249,33 +249,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: "\u0110\u1ECBch spritesheet_6"
-      rect:
-        serializedVersion: 2
-        x: 345
-        y: 2
-        width: 199
-        height: 205
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0863f65d66ff25aa0800000000000000
-      internalID: -6173591322038946176
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 949f29a653bc4814b97d68c691d615e6
     internalID: 0
     vertices: []
     indices: 
@@ -283,7 +261,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       "\u0110\u1ECBch spritesheet_0": 6404991443883621987
       "\u0110\u1ECBch spritesheet_1": -4385916338047837518
@@ -291,7 +271,6 @@ TextureImporter:
       "\u0110\u1ECBch spritesheet_3": -2544432978052471004
       "\u0110\u1ECBch spritesheet_4": -3338550748321854301
       "\u0110\u1ECBch spritesheet_5": 558046266623962815
-      "\u0110\u1ECBch spritesheet_6": -6173591322038946176
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

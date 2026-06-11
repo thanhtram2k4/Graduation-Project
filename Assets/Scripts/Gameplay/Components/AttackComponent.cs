@@ -51,8 +51,11 @@ public class AttackComponent : MonoBehaviour
     private float _cooldownTimer;
     private bool _isInitialized;
 
-    // ── Layer mask cached once for AoE scans (Rule 07 — no per-call lookup) ─
-    private int _enemyLayerMask;
+    // ── ContactFilter2D cached once for AoE scans (Rule 07 — no per-call alloc) ─
+    //
+    // Replaces the deprecated OverlapCircleNonAlloc(int layerMask) overload.
+    // Configured in Awake(); reused by every DealHybridMeleeDamage call.
+    private ContactFilter2D _enemyContactFilter;
 
     // ── Pre-allocated AoE hit buffer (Rule 07 §1.2 — zero-alloc hot path) ───
     //
@@ -159,7 +162,13 @@ public class AttackComponent : MonoBehaviour
         // facade (Hero/Enemy) is responsible for ensuring this AttackComponent
         // is on a prefab whose AoE should hit the "Enemy" layer. If enemy
         // attackers ever need an AoE, expose this as a serialized LayerMask.
-        _enemyLayerMask = LayerMask.GetMask("Enemy");
+        //
+        // ContactFilter2D is a value-type struct — no heap allocation.
+        // Configured once here instead of per-call (Rule 07 §1.2).
+        _enemyContactFilter = new ContactFilter2D();
+        _enemyContactFilter.useLayerMask = true;
+        _enemyContactFilter.SetLayerMask(LayerMask.GetMask("Enemy"));
+        _enemyContactFilter.useTriggers = true;
     }
 
     private void Update()
@@ -220,11 +229,28 @@ public class AttackComponent : MonoBehaviour
         proj.transform.position = spawnPos;
         proj.transform.rotation = Quaternion.identity;
 
-        // Initialize projectile with attacker's stats
-        Projectile projectile = proj.GetComponent<Projectile>();
-        if (projectile != null)
+        // Initialize projectile with attacker's stats.
+        // The prefab may carry either the ally Projectile component (moves right,
+        // hits "Enemy" tag) or the EnemyProjectile component (moves left, hits
+        // "Hero" tag). Try both in priority order — exactly one should be present.
+        Projectile allyProj = proj.GetComponent<Projectile>();
+        if (allyProj != null)
         {
-            projectile.Initialize(_baseDamage, _damageType, _projectileSpeed);
+            allyProj.Initialize(_baseDamage, _damageType, _projectileSpeed);
+        }
+        else
+        {
+            EnemyProjectile enemyProj = proj.GetComponent<EnemyProjectile>();
+            if (enemyProj != null)
+            {
+                enemyProj.Initialize(_baseDamage, _damageType, _projectileSpeed);
+            }
+            else
+            {
+                Debug.LogError($"[AttackComponent] '{name}' spawned projectile " +
+                               $"'{proj.name}' but it has neither a Projectile nor an " +
+                               "EnemyProjectile component. No damage will be dealt.", this);
+            }
         }
 
         // Publish event for AudioManager (Rule 08)
@@ -335,11 +361,12 @@ public class AttackComponent : MonoBehaviour
         // ── AoE blast (Iron Horse fire breath) — skip if unconfigured ──────
         if (_aoeRadius <= 0f || _aoeDamage <= 0f) return;
 
-        // Zero-alloc overlap query against the Enemy layer mask. Buffer fill
-        // is in-place; only indices [0, hitCount) are valid.
+        // Zero-alloc overlap query via cached ContactFilter2D (Rule 07 §1.2).
+        // Uses the modern Physics2D.OverlapCircle overload that fills a pre-
+        // allocated buffer — no managed-heap allocation, no deprecated API.
         Vector2 blastOrigin = mainTarget.transform.position;
-        int hitCount = Physics2D.OverlapCircleNonAlloc(
-            blastOrigin, _aoeRadius, _aoeHitBuffer, _enemyLayerMask);
+        int hitCount = Physics2D.OverlapCircle(
+            blastOrigin, _aoeRadius, _enemyContactFilter, _aoeHitBuffer);
 
         for (int i = 0; i < hitCount; i++)
         {

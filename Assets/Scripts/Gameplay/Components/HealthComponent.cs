@@ -33,6 +33,10 @@ public class HealthComponent : MonoBehaviour
     private float _currentHealth;
     private float _currentShield;
     private bool _isDead;
+    private bool _suppressRewards;
+
+    // ── Cached collider (for pool-safe re-enabling) ────────────────────────
+    private Collider2D _collider;
 
     // ── Public read-only accessors ──────────────────────────────────────────
     public float MaxHealth => _maxHealth;
@@ -42,8 +46,25 @@ public class HealthComponent : MonoBehaviour
     public float CurrentShield => _currentShield;
     public bool IsDead => _isDead;
 
+    /// <summary>
+    /// True when this unit was killed by a mechanic that should NOT grant
+    /// kill rewards (e.g. LaneSweeper "lawnmower" kill). Set by
+    /// <see cref="ForceKill"/> and read by the death handler (Enemy.HandleDeath)
+    /// to conditionally suppress gold payouts. Reset on Initialize.
+    /// </summary>
+    public bool SuppressRewards => _suppressRewards;
+
     /// <summary>HP as a fraction [0, 1] for UI bars and star-rating calc.</summary>
     public float HealthFraction => _maxHealth > 0f ? _currentHealth / _maxHealth : 0f;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // UNITY LIFECYCLE
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private void Awake()
+    {
+        _collider = GetComponent<Collider2D>();
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // INITIALIZATION
@@ -86,6 +107,14 @@ public class HealthComponent : MonoBehaviour
         _currentHealth = _maxHealth;
         _currentShield = _maxShield;
         _isDead = false;
+        _suppressRewards = false;
+
+        // Re-enable collider — pool-safety guarantee. EnemyDieState (and
+        // potentially future Hero death paths) disables the Collider2D on
+        // death. Without re-enabling here, a recycled unit's collider stays
+        // disabled → Physics2D raycasts in EnemyMoveState/Hero never detect
+        // it → enemies walk straight through the "invisible" unit.
+        if (_collider != null) _collider.enabled = true;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -149,6 +178,28 @@ public class HealthComponent : MonoBehaviour
             _isDead = true;
             OnHealthDepleted?.Invoke();
         }
+    }
+
+    /// <summary>
+    /// Immediately kills this unit, bypassing the damage calculation pipeline.
+    /// Sets HP to zero and fires <see cref="OnHealthDepleted"/>. Used by
+    /// mechanics that require instant death without damage numbers, kill
+    /// rewards, or defence interactions (e.g. LaneSweeper "lawnmower" kill).
+    /// </summary>
+    /// <param name="suppressRewards">
+    /// When true (default), sets <see cref="SuppressRewards"/> so that
+    /// downstream death handlers skip gold/resource payouts. Pass false
+    /// for instant-kill mechanics that SHOULD still grant rewards.
+    /// </param>
+    public void ForceKill(bool suppressRewards = true)
+    {
+        if (_isDead) return;
+
+        _suppressRewards = suppressRewards;
+        _currentShield = 0f;
+        _currentHealth = 0f;
+        _isDead = true;
+        OnHealthDepleted?.Invoke();
     }
 
     /// <summary>

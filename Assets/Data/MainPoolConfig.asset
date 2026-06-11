@@ -13,9 +13,24 @@ MonoBehaviour:
   m_Name: MainPoolConfig
   m_EditorClassIdentifier: Assembly-CSharp::PoolConfig
   entries:
+  - poolName: "B\u1ED9 \u0111\u1ED9i"
+    prefab: {fileID: 2094391175350546258, guid: 9361f7e92c607f94e829fa4480147631, type: 3}
+    initialSize: 100
   - poolName: "\u0110\u1EA1n B\u1ED9 \u0110\u1ED9i"
     prefab: {fileID: 3944099320571399198, guid: 335d31a3d505a8444949d598828e3769, type: 3}
-    initialSize: 1000
+    initialSize: 10000
   - poolName: "\u0110\u1ECBch"
-    prefab: {fileID: 2837777235936870783, guid: e724219b10c9c3245b8817003ab398d8, type: 3}
+    prefab: {fileID: 4430626234946694660, guid: c14291edcbdf06845ae7794636be28cb, type: 3}
     initialSize: 20
+  - poolName: "\u0110\u1ECBch \u0111\u1EA1n s\xFAng"
+    prefab: {fileID: 4410389585502025660, guid: 9a9eabb43bb24814e869c9ea21a42f59, type: 3}
+    initialSize: 10000
+  - poolName: "R\u1ED3ng V\xE0ng"
+    prefab: {fileID: 1508235813498816142, guid: 36b66b6cff14f93419a88dabf15d04e2, type: 3}
+    initialSize: 100
+  - poolName: DragonEggPool
+    prefab: {fileID: 7717568645778232233, guid: 870d1f371ac665b4a92f471996dc0d8a, type: 3}
+    initialSize: 20
+  - poolName: LaneSweeper
+    prefab: {fileID: 879358818025145857, guid: 80a5301696bb5af4f8409fd2dc040980, type: 3}
+    initialSize: 5

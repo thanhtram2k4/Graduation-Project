@@ -57,6 +57,9 @@ public class LaneSweeper : MonoBehaviour
              "Set by the spawning system based on grid dimensions.")]
     [SerializeField] private float destroyBoundaryX = 15f;
 
+    [Tooltip("Lane index (row) this sweeper defends. Set by the spawning system.")]
+    [SerializeField] private int laneIndex;
+
     // ─────────────────────────────────────────────────────────────────────────
     // RUNTIME STATE
     // ─────────────────────────────────────────────────────────────────────────
@@ -73,10 +76,12 @@ public class LaneSweeper : MonoBehaviour
     /// </summary>
     /// <param name="speed">Horizontal charge speed in world units/second.</param>
     /// <param name="rightBoundaryX">X position beyond which the sweeper is destroyed.</param>
-    public void Initialise(float speed, float rightBoundaryX)
+    /// <param name="lane">Lane index (row) this sweeper defends.</param>
+    public void Initialise(float speed, float rightBoundaryX, int lane)
     {
         sweepSpeed = speed;
         destroyBoundaryX = rightBoundaryX;
+        laneIndex = lane;
         currentState = SweeperState.Idle;
     }
 
@@ -101,10 +106,7 @@ public class LaneSweeper : MonoBehaviour
         // Release to pool when past the right grid boundary (Rule 07).
         if (position.x >= destroyBoundaryX)
         {
-            if (ObjectPoolManager.Instance != null)
-                ObjectPoolManager.Instance.Release(gameObject);
-            else
-                Destroy(gameObject);
+        Destroy(gameObject); 
         }
     }
 
@@ -173,32 +175,37 @@ public class LaneSweeper : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Transitions the sweeper from Idle to Sweeping state.
+    /// Transitions the sweeper from Idle to Sweeping state and publishes
+    /// <see cref="LaneSweeperTriggeredEvent"/> for AudioManager and VFX systems.
     /// </summary>
     private void ActivateSweep()
     {
         currentState = SweeperState.Sweeping;
 
-        // Future: publish LaneSweeperTriggeredEvent on GameEventBus for
-        // audio (war elephant charge SFX) and VFX (dust trail, camera shake).
+        GameEventBus.Publish(new LaneSweeperTriggeredEvent
+        {
+            Position = transform.position,
+            LaneIndex = laneIndex
+        });
     }
 
     /// <summary>
-    /// Handles contact with an enemy unit. In the current Phase 3 draft,
-    /// this directly destroys the enemy GameObject. In production, this
-    /// should interface with the enemy's <c>HealthComponent</c> to trigger
-    /// the full death pipeline (animation, reward, pool release).
+    /// Handles contact with an enemy unit. Calls
+    /// <see cref="HealthComponent.ForceKill(bool)"/> with
+    /// <c>suppressRewards = true</c> to trigger the death pipeline (animation,
+    /// pool release) without damage calculation or kill-reward Gold.
     /// </summary>
     /// <param name="enemyCollider">The enemy's trigger collider.</param>
     private void HandleEnemyContact(Collider2D enemyCollider)
     {
-        // Use HealthComponent to trigger the proper death pipeline.
-        // No kill reward for sweeper kills (same as PvZ lawnmower behaviour).
+        // ForceKill(true) bypasses the damage pipeline entirely AND suppresses
+        // kill-reward Gold via HealthComponent.SuppressRewards — no floating
+        // text, no Gold, no defence interaction. Same semantics as the PvZ
+        // lawnmower: instant removal, not a "hit".
         HealthComponent health = enemyCollider.GetComponent<HealthComponent>();
         if (health != null)
         {
-            // Deal massive True damage to instantly kill
-            health.TakeDamage(99999f, DamageType.True);
+            health.ForceKill(true);
         }
         else if (ObjectPoolManager.Instance != null)
         {

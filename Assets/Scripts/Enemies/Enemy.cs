@@ -12,11 +12,12 @@ public class Enemy : MonoBehaviour
     [Tooltip("Assign the EnemyUnitData SO. All stats are read from this asset.")]
     [SerializeField] private EnemyUnitData unitData;
 
-    // ── Component references (GetComponent in Awake) ────────────────────────
+    // ── Component references (GetComponent in Awake/EnsureComponentsCached) ──
     private HealthComponent _health;
     private AttackComponent _attack;
     private MovementComponent _movement;
     private AIComponent _ai;
+    private bool _componentsCached;
 
     // ── Spawn-grace tracking ────────────────────────────────────────────────
     // Records the Time.time at which OnEnable last fired (i.e., the moment
@@ -46,15 +47,33 @@ public class Enemy : MonoBehaviour
     public bool JustSpawned => Time.time - _spawnTime < SPAWN_GRACE_SECONDS;
 
     // ─────────────────────────────────────────────────────────────────────────
+    // COMPONENT CACHING — Pool-safe, idempotent
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Caches all sibling component references. Idempotent — safe to call
+    /// multiple times. Handles pool reactivations where Awake does not re-fire
+    /// but OnEnable does.
+    /// </summary>
+    private void EnsureComponentsCached()
+    {
+        if (_componentsCached) return;
+
+        _health = GetComponent<HealthComponent>();
+        _attack = GetComponent<AttackComponent>();
+        _movement = GetComponent<MovementComponent>();
+        _ai = GetComponent<AIComponent>();
+
+        _componentsCached = true;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // UNITY LIFECYCLE
     // ─────────────────────────────────────────────────────────────────────────
 
     private void Awake()
     {
-        _health = GetComponent<HealthComponent>();
-        _attack = GetComponent<AttackComponent>();
-        _movement = GetComponent<MovementComponent>();
-        _ai = GetComponent<AIComponent>();
+        EnsureComponentsCached();
     }
 
     private void OnEnable()
@@ -64,6 +83,10 @@ public class Enemy : MonoBehaviour
         // runs the health reset.
         _spawnTime = Time.time;
 
+        // Ensure components are cached — OnEnable may fire before Awake
+        // on the very first pool activation (Object Pool race condition).
+        EnsureComponentsCached();
+
         // Re-initialize on every pool-get (OnEnable fires on SetActive(true)).
         // HealthComponent.Initialize restores HP, shield, and clears the dead
         // flag — see that method's contract for the full reset guarantees.
@@ -72,11 +95,21 @@ public class Enemy : MonoBehaviour
         if (_health != null)
             _health.OnHealthDepleted += HandleDeath;
 
-        // Initialize FSM — start with Idle which transitions to Move (Rule 09)
+        // ── Initialize FSM — start with Idle → Move (Rule 09) ───────────
+        // _ai.FSM uses a lazy-init property that guarantees a non-null
+        // StateMachine even if AIComponent.Awake hasn't fired yet.
+        // _ai.InitializeFSM calls EnsureComponentsCached internally,
+        // so all component references on the AIComponent side are also safe.
         if (_ai != null)
         {
             _ai.CurrentTarget = null;
             _ai.InitializeFSM(StateFactory.CreateEnemyIdleState(_ai.FSM, _ai));
+        }
+        else
+        {
+            Debug.LogError(
+                "[Enemy] AIComponent is null in OnEnable! FSM will not start. " +
+                "Ensure AIComponent is attached to the same GameObject.", this);
         }
     }
 
@@ -135,12 +168,17 @@ public class Enemy : MonoBehaviour
 
     private void HandleDeath()
     {
+        // Determine kill reward — suppressed for fail-safe mechanics like
+        // LaneSweeper ("lawnmower" kill must NOT grant resources, Rule 01).
+        bool rewardSuppressed = _health != null && _health.SuppressRewards;
+        int killReward = (!rewardSuppressed && unitData != null) ? unitData.killReward : 0;
+
         // Publish EnemyDestroyedEvent — EconomyManager subscribes for kill reward
         GameEventBus.Publish(new EnemyDestroyedEvent
         {
             EnemyID = unitData != null ? unitData.unitID : "",
             LaneIndex = 0, // Will be set properly with grid integration (C10)
-            KillReward = unitData != null ? unitData.killReward : 0,
+            KillReward = killReward,
             Position = transform.position
         });
 
@@ -181,32 +219,19 @@ public class Enemy : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // TRIGGER DETECTION — Hero blocking (Rule 02, Rule 09)
+    // DETECTION — Now handled by FSM states (Rule 02, Rule 09)
     // ─────────────────────────────────────────────────────────────────────────
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Hero"))
-        {
-            HealthComponent heroHealth = other.GetComponent<HealthComponent>();
-            if (heroHealth != null && !heroHealth.IsDead)
-            {
-                // Set target on AIComponent — states read this (Rule 09)
-                if (_ai != null) _ai.CurrentTarget = heroHealth;
-            }
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Hero"))
-        {
-            // Only clear if the exiting hero is our current target (fixes Bug 1)
-            HealthComponent heroHealth = other.GetComponent<HealthComponent>();
-            if (_ai != null && _ai.CurrentTarget == heroHealth)
-            {
-                _ai.CurrentTarget = null;
-            }
-        }
-    }
+    //
+    // Target detection was previously done here via OnTriggerEnter2D/Exit2D,
+    // which used the enemy's BoxCollider2D (isTrigger) for area overlap. This
+    // leaked across lane boundaries because colliders extend vertically into
+    // adjacent rows.
+    //
+    // Detection is now a lane-locked horizontal Raycast inside EnemyMoveState,
+    // mirroring the proven pattern in Hero.cs (Rule 02 §2.1.5). EnemyAttackState
+    // revalidates the target each frame with the same LANE_Y_TOLERANCE filter.
+    //
+    // The enemy's BoxCollider2D (isTrigger) remains on the prefab for
+    // Projectile.OnTriggerEnter2D hit detection — it is NOT used for AI
+    // target acquisition.
 }

@@ -96,6 +96,9 @@ public class GridManager : MonoBehaviour
         }
 
         IsInitialized = true;
+
+        // Spawn lane sweepers after grid is fully built (Rule 02 §2.1).
+        SpawnLaneSweepers();
     }
 
     /// <summary>Determines TileType for a position based on its lane config.</summary>
@@ -276,5 +279,56 @@ public class GridManager : MonoBehaviour
     {
         if (row < 0 || row >= _rows) return _gridOrigin.x;
         return _gridOrigin.x + (_lanesByRow[row].baseColumn + 0.5f) * _cellSize;
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // LANE SWEEPER SPAWNING
+    // ═════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Instantiates one <see cref="LaneSweeper"/> at the Base Column of every
+    /// Standard lane if <see cref="LevelConfig.hasLaneSweepers"/> is enabled.
+    /// Uses <see cref="ObjectPoolManager"/> when available (Rule 07).
+    /// Called once at the end of <see cref="InitializeGrid"/>.
+    /// </summary>
+    private void SpawnLaneSweepers()
+    {
+        if (!_config.hasLaneSweepers) return;
+        if (_config.laneSweeperPrefab == null)
+        {
+            Debug.LogError("[GridManager] hasLaneSweepers is TRUE but laneSweeperPrefab " +
+                           "is null. Assign the prefab in the LevelConfig asset.", this);
+            return;
+        }
+
+        float rightBoundaryX = _gridOrigin.x + (_columns + 1) * _cellSize;
+
+        for (int row = 0; row < _rows; row++)
+        {
+            LaneConfig lane = _lanesByRow[row];
+            if (lane.laneType != LaneType.Standard) continue;
+
+            // Position at the Base Column centre of this lane.
+            Vector3 spawnPos = GridToWorld(lane.baseColumn, row);
+
+            GameObject sweeperGO;
+            if (ObjectPoolManager.Instance != null)
+                sweeperGO = ObjectPoolManager.Instance.Get(_config.laneSweeperPrefab);
+            else
+                sweeperGO = Instantiate(_config.laneSweeperPrefab);
+
+            sweeperGO.transform.position = spawnPos;
+
+            LaneSweeper sweeper = sweeperGO.GetComponent<LaneSweeper>();
+            if (sweeper != null)
+            {
+                sweeper.Initialise(_config.laneSweeperSpeed, rightBoundaryX, row);
+            }
+            else
+            {
+                Debug.LogError($"[GridManager] laneSweeperPrefab '{_config.laneSweeperPrefab.name}' " +
+                               "is missing a LaneSweeper component.", this);
+            }
+        }
     }
 }

@@ -79,11 +79,40 @@ public class GameManager : MonoBehaviour
         EconomyManager.Instance.AddGold(amount);
     }
 
+    /// <summary>
+    /// Triggers an absolute Game Over (defeat). Freezes the entire game by
+    /// setting <c>Time.timeScale = 0f</c>, which halts all physics, FSM
+    /// Update() loops, animations driven by deltaTime, and projectiles.
+    ///
+    /// <para><b>To resume time when restarting:</b> call
+    /// <c>Time.timeScale = 1f;</c> before <c>SceneManager.LoadScene()</c>.
+    /// See <see cref="RestartGame"/> for reference.</para>
+    ///
+    /// <para><b>Architecture note (Rule 10):</b> Time.timeScale ownership
+    /// should belong to PauseManager / LevelStateManager. This is a
+    /// temporary placement until those systems are implemented.</para>
+    /// </summary>
     public void GameOver()
     {
+        // Guard: prevent duplicate calls (e.g., two enemies cross the
+        // base line on the same frame).
+        if (isGameOver) return;
+
         isGameOver = true;
+
+        // ── Instant freeze ──────────────────────────────────────────────
+        // Setting timeScale to 0 stops:
+        //   • All Time.deltaTime-based movement (MovementComponent, FSM)
+        //   • All physics simulation (Rigidbody2D, projectiles)
+        //   • All Animator updates that use normal time
+        //   • All coroutines using WaitForSeconds
+        //
+        // UI animations that must continue during Game Over should use
+        // Time.unscaledDeltaTime (Rule 10 §Time Scale Contract).
+        Time.timeScale = 0f;
+
         GameEventBus.Publish(new DefeatEvent());
-        Debug.Log("Game Over!");
+        Debug.Log("[GameManager] Game Over — Time frozen (timeScale = 0).");
     }
 
     public void GameWin()
@@ -94,6 +123,14 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
+        // ── CRITICAL: Restore time before scene reload ──────────────────
+        // Time.timeScale persists across scene loads. If GameOver() froze
+        // time (timeScale = 0), we MUST reset it to 1 here, otherwise
+        // the reloaded scene starts frozen.
+        // Rule 10 §Restart Flow step 3a: "Resume() is called first to
+        // restore Time.timeScale = 1 before scene load."
+        Time.timeScale = 1f;
+
         GameEventBus.Reset();
         UnityEngine.SceneManagement.SceneManager.LoadScene(
             UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);

@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Projectile
   - Terrain
+  - Resource
   layers:
   - Default
   - TransparentFX
@@ -16,10 +17,10 @@ TagManager:
   - Water
   - UI
   - Terrain
-  - 
-  - 
-  - 
-  - 
+  - Hero
+  - Base
+  - Pickup
+  - LaneSweeper
   - 
   - 
   - 

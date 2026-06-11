@@ -18,7 +18,7 @@ MonoBehaviour:
   gridColumns: 8
   gridRows: 5
   cellSize: 1
-  startingGold: 100
+  startingGold: 200
   baseMaxHP: 20
   threeStarHPThreshold: 0.8
   twoStarHPThreshold: 0.4

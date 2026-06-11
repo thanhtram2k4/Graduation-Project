@@ -42,6 +42,16 @@ public class Projectile : MonoBehaviour
 
     private void OnEnable()
     {
+        // Defense-in-depth: warn if Projectile is attached to a non-projectile entity
+        if (gameObject.CompareTag("Enemy"))
+        {
+            Debug.LogError($"[Projectile] '{name}' has a Projectile component but is tagged " +
+                           "'Enemy'. This will cause the enemy to self-destruct on trigger " +
+                           "contact. Remove the Projectile component from this prefab.", this);
+            _isActive = false;
+            return;
+        }
+
         // Reset for pool re-use
         _lifetimeTimer = defaultLifetime;
         _isActive = true;
@@ -65,6 +75,11 @@ public class Projectile : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!_isActive) return;
+
+        // Defense-in-depth: a Projectile component accidentally attached to
+        // a non-projectile entity (e.g. an Enemy prefab) must never self-destruct
+        // via ReleaseToPool. Only process hits if WE are NOT tagged "Enemy".
+        if (gameObject.CompareTag("Enemy")) return;
 
         if (other.CompareTag("Enemy"))
         {
