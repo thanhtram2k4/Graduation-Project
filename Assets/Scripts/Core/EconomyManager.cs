@@ -99,7 +99,17 @@ public class EconomyManager : MonoBehaviour
             return;
         }
 
-        _currentGold = levelConfig.startingGold;
+        // If campaign is active (Level 2+), restore saved Gold instead of level default
+        if (CampaignManager.Instance != null && CampaignManager.Instance.IsCampaignActive)
+        {
+            _currentGold = CampaignManager.Instance.savedGold;
+            Debug.Log($"[EconomyManager] Campaign active — restored saved Gold: {_currentGold}");
+        }
+        else
+        {
+            _currentGold = levelConfig.startingGold;
+        }
+
         _totalGoldEarned = 0;
         _totalGoldSpent = 0;
 

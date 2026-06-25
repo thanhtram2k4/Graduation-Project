@@ -44,7 +44,11 @@ MonoBehaviour:
     spawnColumn: 7
     baseColumn: 0
     laneType: 0
-  waves: []
+  waves:
+  - waveIndex: 0
+    delayBeforeWave: 0
+    spawnInterval: 0
+    spawnEntries: []
   hasLaneSweepers: 1
   laneSweeperPrefab: {fileID: 879358818025145857, guid: 80a5301696bb5af4f8409fd2dc040980, type: 3}
   laneSweeperSpeed: 20

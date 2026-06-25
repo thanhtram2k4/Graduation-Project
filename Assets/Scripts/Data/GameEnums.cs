@@ -114,11 +114,17 @@ public enum LaneType
 }
 
 /// <summary>
-/// The three sequential states of a level session (Rule 01 §1.1).
-/// Preparing → Defending → Ending.
+/// The sequential states of a level session (Rule 01 §1.1).
+/// Intro → Drafting → Shuffling → Preparing → Defending → Ending.
 /// </summary>
 public enum LevelState
 {
+    /// <summary>Narrative intro screen. No gameplay. "Ra trận" transitions to Drafting.</summary>
+    Intro,
+    /// <summary>Player selects hero pool from almanac grid. Confirm transitions to Shuffling.</summary>
+    Drafting,
+    /// <summary>Shuffle animation + manual blind pick phase. Lineup finalized transitions to Preparing.</summary>
+    Shuffling,
     /// <summary>Game paused. No enemies. Player places/repositions troops.</summary>
     Preparing,
     /// <summary>Wave active. Enemies spawn and move. Combat is live.</summary>

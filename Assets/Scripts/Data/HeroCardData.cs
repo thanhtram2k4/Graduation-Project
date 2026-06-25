@@ -42,16 +42,6 @@ public class HeroCardData : ScriptableObject
              "field governs in-match combat targeting independently.")]
     public HeroClass heroClass;
 
-    [Tooltip("Historical period or faction label displayed as a subtitle beneath the " +
-             "hero name on the card face (e.g. 'Trần Dynasty', 'Lê Sơ Period').\n" +
-             "Supports full Vietnamese Unicode.")]
-    public string eraFactionTag;
-
-    [Tooltip("Vietnamese dynasty or historical period this hero belongs to. " +
-             "Used for dynasty-filter features, asset organisation, and " +
-             "cultural-identity validation (Rule 11).")]
-    public VietnameseDynasty dynasty;
-
     // ─────────────────────────────────────────────────────────────────────────
     // VISUALS
     // ─────────────────────────────────────────────────────────────────────────

@@ -15,10 +15,8 @@ MonoBehaviour:
   heroID: Card_rongvang
   heroName: "R\u1ED3ng V\xE0ng \u0110\u1EA5t Vi\u1EC7t"
   heroClass: 2
-  eraFactionTag: 
-  dynasty: 10
   cardFaceSprite: {fileID: -4073354373329374380, guid: ac0c65e6fecdb7744a65aee74c087554, type: 3}
-  cardBackSpriteOverride: {fileID: 0}
+  cardBackSpriteOverride: {fileID: 4681365037791786175, guid: f87807c2d49fdba4bb95ca3eb436e699, type: 3}
   classIconSprite: {fileID: -4073354373329374380, guid: ac0c65e6fecdb7744a65aee74c087554, type: 3}
   flipAnimationClip: {fileID: 0}
   biography: The embodiment of National Ancestor Lac Long Quan, the origin of the

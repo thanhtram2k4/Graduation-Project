@@ -15,10 +15,8 @@ MonoBehaviour:
   heroID: Card_soldier
   heroName: "B\u1ED9 \u0111\u1ED9i c\u1EE5 H\u1ED3"
   heroClass: 1
-  eraFactionTag: 
-  dynasty: 0
   cardFaceSprite: {fileID: 4319978093780688064, guid: 49f3d938cf0fa8340bb6a28e5ea12cdc, type: 3}
-  cardBackSpriteOverride: {fileID: 0}
+  cardBackSpriteOverride: {fileID: 4681365037791786175, guid: f87807c2d49fdba4bb95ca3eb436e699, type: 3}
   classIconSprite: {fileID: 4319978093780688064, guid: 49f3d938cf0fa8340bb6a28e5ea12cdc, type: 3}
   flipAnimationClip: {fileID: 0}
   biography: A heroic image of the "Ho Chi Minh's Army" soldiers in their familiar

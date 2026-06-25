@@ -120,14 +120,38 @@ public static class GameEventBus
     public static event Action<LevelRestartRequestedEvent> OnLevelRestartRequested;
 
     // ─────────────────────────────────────────────────────────────────────────
-    // DRAFT
+    // DRAFT (Phase 4 — Draft & Shuffle System)
     // ─────────────────────────────────────────────────────────────────────────
 
-    /// <summary>Raised when a hero card is flipped.</summary>
+    /// <summary>Raised when a hero card is flipped (AudioManager SFX).</summary>
     public static event Action<CardFlippedEvent> OnCardFlipped;
 
-    /// <summary>Raised when a hero is accepted into lineup.</summary>
+    /// <summary>Raised when a hero is accepted into lineup (AudioManager SFX).</summary>
     public static event Action<HeroAcceptedEvent> OnHeroAccepted;
+
+    /// <summary>Raised by LevelIntroUI to request Intro → Drafting transition.</summary>
+    public static event Action<DeployRequestedEvent> OnDeployRequested;
+
+    /// <summary>Raised by DraftingUI when a hero is selected for the pool.</summary>
+    public static event Action<HeroSelectedForPoolEvent> OnHeroSelectedForPool;
+
+    /// <summary>Raised by DraftingUI when a hero is removed from the pool.</summary>
+    public static event Action<HeroRemovedFromPoolEvent> OnHeroRemovedFromPool;
+
+    /// <summary>Raised by DraftingUI when the player confirms their pool.</summary>
+    public static event Action<DraftConfirmedEvent> OnDraftConfirmed;
+
+    /// <summary>Raised by ShuffleCutsceneUI when shuffle animation finishes.</summary>
+    public static event Action<ShuffleCompleteEvent> OnShuffleComplete;
+
+    /// <summary>Raised by ShuffleCutsceneUI when player clicks a face-down card.</summary>
+    public static event Action<BlindCardClickedEvent> OnBlindCardClicked;
+
+    /// <summary>Raised by LineupManager after revealing a hero for a clicked card.</summary>
+    public static event Action<BlindCardRevealedEvent> OnBlindCardRevealed;
+
+    /// <summary>Raised by LineupManager when all required heroes have been picked.</summary>
+    public static event Action<LineupFinalizedEvent> OnLineupFinalized;
 
     // ─────────────────────────────────────────────────────────────────────────
     // ACTIVE SKILL (Board-Level)
@@ -213,9 +237,17 @@ public static class GameEventBus
     // Lane Sweeper
     public static void Publish(LaneSweeperTriggeredEvent evt) => OnLaneSweeperTriggered?.Invoke(evt);
 
-    // Draft
+    // Draft (Phase 4)
     public static void Publish(CardFlippedEvent evt) => OnCardFlipped?.Invoke(evt);
     public static void Publish(HeroAcceptedEvent evt) => OnHeroAccepted?.Invoke(evt);
+    public static void Publish(DeployRequestedEvent evt) => OnDeployRequested?.Invoke(evt);
+    public static void Publish(HeroSelectedForPoolEvent evt) => OnHeroSelectedForPool?.Invoke(evt);
+    public static void Publish(HeroRemovedFromPoolEvent evt) => OnHeroRemovedFromPool?.Invoke(evt);
+    public static void Publish(DraftConfirmedEvent evt) => OnDraftConfirmed?.Invoke(evt);
+    public static void Publish(ShuffleCompleteEvent evt) => OnShuffleComplete?.Invoke(evt);
+    public static void Publish(BlindCardClickedEvent evt) => OnBlindCardClicked?.Invoke(evt);
+    public static void Publish(BlindCardRevealedEvent evt) => OnBlindCardRevealed?.Invoke(evt);
+    public static void Publish(LineupFinalizedEvent evt) => OnLineupFinalized?.Invoke(evt);
 
     // UI
     public static void Publish(ButtonClickEvent evt) => OnButtonClick?.Invoke(evt);
@@ -266,6 +298,14 @@ public static class GameEventBus
 
         OnCardFlipped = null;
         OnHeroAccepted = null;
+        OnDeployRequested = null;
+        OnHeroSelectedForPool = null;
+        OnHeroRemovedFromPool = null;
+        OnDraftConfirmed = null;
+        OnShuffleComplete = null;
+        OnBlindCardClicked = null;
+        OnBlindCardRevealed = null;
+        OnLineupFinalized = null;
 
         OnLaneSweeperTriggered = null;
 

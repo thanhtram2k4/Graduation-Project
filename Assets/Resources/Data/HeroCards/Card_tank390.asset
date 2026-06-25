@@ -15,10 +15,8 @@ MonoBehaviour:
   heroID: Card_tank390
   heroName: "Xe t\u0103ng 390"
   heroClass: 1
-  eraFactionTag: 
-  dynasty: 0
   cardFaceSprite: {fileID: 7482957942664187643, guid: 843e7365cf85fc44ab2e3e1ac8354051, type: 3}
-  cardBackSpriteOverride: {fileID: 0}
+  cardBackSpriteOverride: {fileID: 4681365037791786175, guid: f87807c2d49fdba4bb95ca3eb436e699, type: 3}
   classIconSprite: {fileID: 7482957942664187643, guid: 843e7365cf85fc44ab2e3e1ac8354051, type: 3}
   flipAnimationClip: {fileID: 0}
   biography: A witness to a great history - the armored tank that rammed through

@@ -1,79 +1,114 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+// =============================================================================
+// HeroDragHandler.cs (Refactored — Phase 4)
+// Handles drag-and-drop hero placement from HUD slot to grid.
+//
+// REMOVED: All GameManager.Instance and HeroSelector references (Rule 07).
+// NOW: Reads hero prefab from the refactored HeroSlotUI which populates it
+//      from the LineupFinalizedEvent. Drag is only allowed during Preparing
+//      or Defending states (tracked via LevelStateChangedEvent).
+//
+// UI layer component — minimal gameplay coupling via LevelState tracking.
+// =============================================================================
+
 /// <summary>
-/// Gắn vào mỗi UI Button thẻ bài tướng. Xử lý kéo-thả tướng từ UI xuống TerrainCell.
+/// Drag-and-drop handler for hero placement. Reads the hero prefab from
+/// <see cref="HeroSlotUI.HeroPrefab"/> (populated via the draft lineup).
+/// Only allows dragging during Preparing or Defending states (Rule 01).
 /// </summary>
 public class HeroDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    private HeroSlotUI slotUI;
-    private GameObject ghostObject;
-    private SpriteRenderer ghostRenderer;
-    private GameObject heroPrefab;
-    private Camera mainCamera;
+    private HeroSlotUI _slotUI;
+    private GameObject _ghostObject;
+    private SpriteRenderer _ghostRenderer;
+    private GameObject _heroPrefab;
+    private Camera _mainCamera;
+
+    /// <summary>Current level state — tracked via event subscription.</summary>
+    private LevelState _currentState;
 
     private void Awake()
     {
-        slotUI = GetComponent<HeroSlotUI>();
-        mainCamera = Camera.main;
+        _slotUI = GetComponent<HeroSlotUI>();
+        _mainCamera = Camera.main;
+    }
+
+    private void OnEnable()
+    {
+        GameEventBus.OnLevelStateChanged += HandleLevelStateChanged;
+    }
+
+    private void OnDisable()
+    {
+        GameEventBus.OnLevelStateChanged -= HandleLevelStateChanged;
+    }
+
+    /// <summary>
+    /// Tracks level state to gate drag-and-drop (Rule 01: placement only
+    /// during Preparing or Defending states).
+    /// </summary>
+    private void HandleLevelStateChanged(LevelStateChangedEvent evt)
+    {
+        _currentState = evt.NewState;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (GameManager.Instance == null || GameManager.Instance.isGameOver) return;
+        // Guard: only allow drag during Preparing or Defending
+        if (_currentState != LevelState.Preparing && _currentState != LevelState.Defending)
+            return;
 
-        HeroSelector heroSelector = GameManager.Instance.GetComponent<HeroSelector>();
-        if (heroSelector == null) return;
+        // Guard: slot must be initialized with lineup data
+        if (_slotUI == null || !_slotUI.IsInitialized)
+            return;
 
-        int index = slotUI.slotIndex;
-        if (index < 0 || index >= heroSelector.heroPrefabs.Length) return;
+        _heroPrefab = _slotUI.HeroPrefab;
+        if (_heroPrefab == null) return;
 
-        heroPrefab = heroSelector.heroPrefabs[index];
-        if (heroPrefab == null) return;
-
-        // Tạo ảnh ảo (Ghost) chỉ có SpriteRenderer, không có Collider
-        Vector3 worldPos = mainCamera.ScreenToWorldPoint(eventData.position);
+        // Create ghost sprite (60% opacity per Rule 02)
+        Vector3 worldPos = _mainCamera.ScreenToWorldPoint(eventData.position);
         worldPos.z = 0f;
 
-        ghostObject = new GameObject("HeroGhost");
-        ghostObject.transform.localScale = heroPrefab.transform.localScale;
-        ghostRenderer = ghostObject.AddComponent<SpriteRenderer>();
+        _ghostObject = new GameObject("HeroGhost");
+        _ghostObject.transform.localScale = _heroPrefab.transform.localScale;
+        _ghostRenderer = _ghostObject.AddComponent<SpriteRenderer>();
 
-        SpriteRenderer prefabRenderer = heroPrefab.GetComponent<SpriteRenderer>();
+        SpriteRenderer prefabRenderer = _heroPrefab.GetComponent<SpriteRenderer>();
         if (prefabRenderer != null)
         {
-            ghostRenderer.sprite = prefabRenderer.sprite;
-            ghostRenderer.sortingOrder = 100;
+            _ghostRenderer.sprite = prefabRenderer.sprite;
+            _ghostRenderer.sortingOrder = 100;
         }
 
-        // Alpha = 0.6f
-        Color ghostColor = ghostRenderer.color;
+        Color ghostColor = _ghostRenderer.color;
         ghostColor.a = 0.6f;
-        ghostRenderer.color = ghostColor;
+        _ghostRenderer.color = ghostColor;
 
-        ghostObject.transform.position = worldPos;
+        _ghostObject.transform.position = worldPos;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (ghostObject == null) return;
+        if (_ghostObject == null) return;
 
-        Vector3 worldPos = mainCamera.ScreenToWorldPoint(eventData.position);
+        Vector3 worldPos = _mainCamera.ScreenToWorldPoint(eventData.position);
         worldPos.z = 0f;
-        ghostObject.transform.position = worldPos;
+        _ghostObject.transform.position = worldPos;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (ghostObject != null)
+        if (_ghostObject != null)
         {
-            Destroy(ghostObject);
-            ghostObject = null;
+            Destroy(_ghostObject);
+            _ghostObject = null;
         }
 
-        if (heroPrefab == null) return;
+        if (_heroPrefab == null) return;
 
-        Vector2 worldPos = mainCamera.ScreenToWorldPoint(eventData.position);
+        Vector2 worldPos = _mainCamera.ScreenToWorldPoint(eventData.position);
         RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero, 0f, LayerMask.GetMask("Terrain"));
 
         if (hit.collider != null)
@@ -81,10 +116,10 @@ public class HeroDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             TerrainCell cell = hit.collider.GetComponent<TerrainCell>();
             if (cell != null)
             {
-                cell.PlaceHero(heroPrefab);
+                cell.PlaceHero(_heroPrefab);
             }
         }
 
-        heroPrefab = null;
+        _heroPrefab = null;
     }
 }

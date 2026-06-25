@@ -107,27 +107,55 @@ public class GameOutcomeUI : MonoBehaviour
     }
 
     /// <summary>
-    /// Restores time, resets event bus, and loads the next scene in build index.
+    /// Saves the current Gold and Lineup to CampaignManager, then reloads the
+    /// scene. The reloaded scene reads the next LevelConfig from CampaignManager
+    /// and skips Intro/Draft/Shuffle (campaign continuation).
     /// </summary>
     public void OnNextLevelClicked()
     {
         GameEventBus.Publish(new ButtonClickEvent());
 
+        // Save campaign state before scene reload
+        if (CampaignManager.Instance != null)
+        {
+            // Collect current Gold from EconomyManager
+            int gold = EconomyManager.Instance != null ? EconomyManager.Instance.CurrentGold : 0;
+
+            // Collect current lineup from LineupManager
+            HeroCardData[] lineupArray = null;
+            if (LineupManager.Instance != null)
+            {
+                int size = LineupManager.Instance.MaxLineupSize;
+                int count = 0;
+
+                // Count valid entries first (zero-alloc counting)
+                for (int i = 0; i < size; i++)
+                {
+                    if (LineupManager.Instance.GetLineupEntry(i) != null)
+                        count++;
+                }
+
+                lineupArray = new HeroCardData[count];
+                int writeIdx = 0;
+                for (int i = 0; i < size; i++)
+                {
+                    HeroCardData entry = LineupManager.Instance.GetLineupEntry(i);
+                    if (entry != null)
+                    {
+                        lineupArray[writeIdx] = entry;
+                        writeIdx++;
+                    }
+                }
+            }
+
+            CampaignManager.Instance.SaveStateAndAdvance(gold, lineupArray);
+        }
+
         // CRITICAL ORDER (Rule 10):
         Time.timeScale = 1f;
         GameEventBus.Reset();
 
-        int currentIndex = SceneManager.GetActiveScene().buildIndex;
-        int nextIndex = currentIndex + 1;
-
-        if (nextIndex < SceneManager.sceneCountInBuildSettings)
-        {
-            SceneManager.LoadScene(nextIndex);
-        }
-        else
-        {
-            Debug.LogWarning("[GameOutcomeUI] No next scene in build settings. Reloading current scene as fallback.");
-            SceneManager.LoadScene(currentIndex);
-        }
+        // Reload current scene — CampaignManager (DDOL) will provide the next LevelConfig
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

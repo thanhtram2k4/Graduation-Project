@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7530a15906673204497b94f9ad2af73c, type: 3}
+  m_Name: Card_ThanhGiong
+  m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
+  heroID: Card_ThanhGiong
+  heroName: "Th\xE1nh Gi\xF3ng"
+  heroClass: 0
+  cardFaceSprite: {fileID: -1546443605270290197, guid: cb810832522e0d34a9dbf9ec805ed824, type: 3}
+  cardBackSpriteOverride: {fileID: 4681365037791786175, guid: f87807c2d49fdba4bb95ca3eb436e699, type: 3}
+  classIconSprite: {fileID: -1546443605270290197, guid: cb810832522e0d34a9dbf9ec805ed824, type: 3}
+  flipAnimationClip: {fileID: 0}
+  biography: One of the "4 Immortals" of Vietnamese folklore. The young boy Giong
+    from Giong village stretched himself into a mighty warrior, uprooting bamboo
+    from his village to use as weapons to defeat the Yin invaders. Giong is a symbol
+    of youthful strength and indomitable patriotism in the fight against foreign
+    invaders.
+  specialSkillName: Iron Horse's Breath
+  specialSkillDescription: A series of attacks using bamboo sticks (Melee damage).
+    Simultaneously, the Passive Skill activates the Iron Horse to continuously breathe
+    fire, inflicting a "Burning" effect (Damage over time - DoT) on all surrounding
+    enemies.
+  specialSkillIcon: {fileID: 0}
+  linkedUnitData: {fileID: 11400000, guid: 2c90f551bb2eaea4a9901b70b70038c8, type: 2}
+  activeSkillData: {fileID: 0}
+  isAvailable: 1

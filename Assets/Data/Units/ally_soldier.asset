@@ -25,7 +25,7 @@ MonoBehaviour:
   unlockConditionLevelIndex: 1
   unitSprite: {fileID: 4319978093780688064, guid: 49f3d938cf0fa8340bb6a28e5ea12cdc, type: 3}
   portraitSprite: {fileID: 4319978093780688064, guid: 49f3d938cf0fa8340bb6a28e5ea12cdc, type: 3}
-  unitPrefab: {fileID: 6932388524137037780, guid: e19d9c5fac67f4c4e82b278d6c386e41, type: 3}
+  unitPrefab: {fileID: 2094391175350546258, guid: 9361f7e92c607f94e829fa4480147631, type: 3}
   placementCost: 100
   sellRefundRate: 0.6
   upgradeCost: 0

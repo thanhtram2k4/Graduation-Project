@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7530a15906673204497b94f9ad2af73c, type: 3}
+  m_Name: Card_thuytinh
+  m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
+  heroID: Card_thuytinh
+  heroName: "Thu\u1EF7 Tinh"
+  heroClass: 1
+  cardFaceSprite: {fileID: -5079000807043921801, guid: 41f05ea2f26b7e64aac3e0f528fd695f, type: 3}
+  cardBackSpriteOverride: {fileID: 4681365037791786175, guid: f87807c2d49fdba4bb95ca3eb436e699, type: 3}
+  classIconSprite: {fileID: -5079000807043921801, guid: 41f05ea2f26b7e64aac3e0f528fd695f, type: 3}
+  flipAnimationClip: {fileID: 0}
+  biography: "The god who rules the seas and rivers, possessing the boundless power
+    of the ocean. Putting aside past personal grudges, Th\u1EE7y Tinh now uses his
+    powerful trident to sweep away any enemy who dares to covet his territory."
+  specialSkillName: Ocean 's Wrath
+  specialSkillDescription: Summons a massive tsunami that crashes directly into the
+    enemy, pushing all enemy units in that lane backward, giving your team valuable
+    time to regroup.
+  specialSkillIcon: {fileID: 0}
+  linkedUnitData: {fileID: 11400000, guid: fb86e9678ba40c143951e14db57210be, type: 2}
+  activeSkillData: {fileID: 0}
+  isAvailable: 1

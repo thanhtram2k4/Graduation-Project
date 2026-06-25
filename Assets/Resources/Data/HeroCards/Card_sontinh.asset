@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7530a15906673204497b94f9ad2af73c, type: 3}
+  m_Name: Card_sontinh
+  m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
+  heroID: Card_sontinh
+  heroName: "S\u01A1n Tinh"
+  heroClass: 1
+  cardFaceSprite: {fileID: 5558832629397678359, guid: 709f5b5bcc2d1b5419e88244d162aa73, type: 3}
+  cardBackSpriteOverride: {fileID: 4681365037791786175, guid: f87807c2d49fdba4bb95ca3eb436e699, type: 3}
+  classIconSprite: {fileID: 5558832629397678359, guid: 709f5b5bcc2d1b5419e88244d162aa73, type: 3}
+  flipAnimationClip: {fileID: 0}
+  biography: The god of the mountains and forests, the leader of the "Four Immortals".
+    Son Tinh represents the power to control natural disasters and the unwavering
+    steadfastness of Mother Vietnam.
+  specialSkillName: Mountain- Moving Boulder
+  specialSkillDescription: Drawing upon divine strength, Son Tinh effortlessly lifts
+    massive boulders with his bare hands and hurls them directly at the enemy ranks.
+    The falling boulders create an earth-shattering impact, inflicting heavy damage
+    and stunning all enemies in the area, crushing their will to advance and rendering
+    them immobile.
+  specialSkillIcon: {fileID: 0}
+  linkedUnitData: {fileID: 11400000, guid: 55b0f58fd37fbf2469f5ea2e87ff4eb2, type: 2}
+  activeSkillData: {fileID: 0}
+  isAvailable: 1

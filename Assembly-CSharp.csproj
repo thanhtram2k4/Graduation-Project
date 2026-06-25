@@ -61,6 +61,7 @@
     <Compile Include="Assets\Scripts\AI\States\Enemy\EnemyIdleState.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Components\ResourceGeneratorComponent.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Projectile.cs" />
+    <Compile Include="Assets\Scripts\Core\Level\LineupManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
     <Compile Include="Assets\Scripts\Gameplay\EnemyProjectile.cs" />
     <Compile Include="Assets\Scripts\Gameplay\LaneSweeper.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Assets\Scripts\AI\FSM\AIComponent.cs" />
     <Compile Include="Assets\Scripts\UI\GoldDisplay.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Components\MovementComponent.cs" />
+    <Compile Include="Assets\Scripts\Data\LevelIntroData.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_ExampleScript_01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
@@ -99,6 +101,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ChatController.cs" />
     <Compile Include="Assets\Scripts\Data\EnemyUnitData.cs" />
     <Compile Include="Assets\Scripts\UI\SkillButtonUI.cs" />
+    <Compile Include="Assets\Scripts\UI\DraftCardSlot.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_DigitValidator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_FrameRateCounter.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Components\HealthComponent.cs" />
@@ -106,6 +109,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshSpawner.cs" />
     <Compile Include="Assets\Scripts\Enemies\Enemy.cs" />
     <Compile Include="Assets\Scripts\AI\FSM\StateFactory.cs" />
+    <Compile Include="Assets\Scripts\UI\LevelIntroUI.cs" />
     <Compile Include="Assets\Scripts\Data\GameEnums.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\CameraController.cs" />
     <Compile Include="Assets\Scripts\AI\States\Enemy\EnemyAttackState.cs" />
@@ -113,6 +117,7 @@
     <Compile Include="Assets\Scripts\Core\Events\GameEvents.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark03.cs" />
     <Compile Include="Assets\Scripts\Gameplay\TileData.cs" />
+    <Compile Include="Assets\Scripts\Core\Level\CampaignManager.cs" />
     <Compile Include="Assets\Scripts\AI\FSM\StateMachine.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Components\ResourcePickup.cs" />
     <Compile Include="Assets\Scripts\AI\States\Enemy\EnemyDieState.cs" />
@@ -135,9 +140,11 @@
     <Compile Include="Assets\Scripts\Core\Pooling\PooledObject.cs" />
     <Compile Include="Assets\Scripts\Heroes\Shooter.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshProFloatingText.cs" />
+    <Compile Include="Assets\Scripts\UI\ShuffleCutsceneUI.cs" />
     <Compile Include="Assets\Scripts\Data\ActiveSkillData.cs" />
     <Compile Include="Assets\Scripts\Core\Level\LevelStateManager.cs" />
     <Compile Include="Assets\Scripts\UI\GameOutcomeUI.cs" />
+    <Compile Include="Assets\Scripts\UI\DraftingUI.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

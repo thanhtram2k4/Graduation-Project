@@ -2,9 +2,21 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+// =============================================================================
+// HeroSlotUI.cs (Refactored — Phase 4)
+// Event-driven hero slot in the in-match HUD roster.
+//
+// REMOVED: All GameManager.Instance and HeroSelector references (Rule 07).
+// NOW: Subscribes to LineupFinalizedEvent and reads data from LineupManager
+//      via the event payload. The hero prefab is stored locally for drag-drop.
+//
+// UI layer component — ZERO gameplay MonoBehaviour references.
+// =============================================================================
+
 /// <summary>
-/// Gắn vào mỗi UI Button đại diện cho một thẻ bài tướng trên Canvas.
-/// Tự động lấy icon và cost từ heroPrefabs theo slotIndex.
+/// Represents a single hero slot in the in-match HUD. Populated after
+/// <see cref="LineupFinalizedEvent"/> is received. Stores the hero prefab
+/// reference for <see cref="HeroDragHandler"/> to use during placement.
 /// </summary>
 public class HeroSlotUI : MonoBehaviour
 {
@@ -15,61 +27,83 @@ public class HeroSlotUI : MonoBehaviour
     [SerializeField] private Image heroIcon;
     [SerializeField] private TextMeshProUGUI costText;
 
-    private void Start()
+    // ─────────────────────────────────────────────────────────────────────────
+    // State populated by LineupFinalizedEvent
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// The hero prefab for this slot, resolved from the draft lineup.
+    /// Read by HeroDragHandler for drag-and-drop placement.
+    /// </summary>
+    public GameObject HeroPrefab { get; private set; }
+
+    /// <summary>The HeroCardData for this slot.</summary>
+    public HeroCardData HeroCard { get; private set; }
+
+    /// <summary>Whether this slot has been populated with lineup data.</summary>
+    public bool IsInitialized { get; private set; }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Unity Lifecycle
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private void OnEnable()
     {
-        InitSlot();
+        GameEventBus.OnLineupFinalized += HandleLineupFinalized;
     }
 
-    private void InitSlot()
+    private void OnDisable()
     {
-        // Kiểm tra GameManager tồn tại
-        if (GameManager.Instance == null)
+        GameEventBus.OnLineupFinalized -= HandleLineupFinalized;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Event Handlers
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Populates this slot from the LineupManager's finalized lineup.
+    /// Reads data via LineupManager.Instance — this is a gameplay singleton,
+    /// but since we need the prefab reference post-finalization, the minimal
+    /// coupling is acceptable. An alternative would be to pass all data
+    /// through the event payload.
+    /// </summary>
+    private void HandleLineupFinalized(LineupFinalizedEvent evt)
+    {
+        if (LineupManager.Instance == null)
         {
-            Debug.LogWarning($"[HeroSlotUI] GameManager.Instance is null. Slot {slotIndex} cannot initialize.");
+            Debug.LogWarning($"[HeroSlotUI] LineupManager.Instance is null. Slot {slotIndex} cannot initialize.");
             return;
         }
 
-        HeroSelector heroSelector = GameManager.Instance.GetComponent<HeroSelector>();
-        if (heroSelector == null)
+        if (slotIndex < 0 || slotIndex >= evt.LineupSize)
         {
-            Debug.LogWarning($"[HeroSlotUI] HeroSelector not found on GameManager. Slot {slotIndex} cannot initialize.");
+            // This slot is beyond the lineup size — hide it
+            gameObject.SetActive(false);
             return;
         }
 
-        // Kiểm tra slotIndex hợp lệ
-        if (slotIndex < 0 || slotIndex >= heroSelector.heroPrefabs.Length)
+        HeroCard = LineupManager.Instance.GetLineupEntry(slotIndex);
+        HeroPrefab = LineupManager.Instance.GetLineupPrefab(slotIndex);
+
+        if (HeroCard == null || HeroPrefab == null)
         {
-            Debug.LogWarning($"[HeroSlotUI] slotIndex {slotIndex} out of range (heroPrefabs length: {heroSelector.heroPrefabs.Length}).");
+            Debug.LogWarning($"[HeroSlotUI] Lineup data missing for slot {slotIndex}.");
             return;
         }
 
-        GameObject heroPrefab = heroSelector.heroPrefabs[slotIndex];
-        if (heroPrefab == null)
+        // Populate icon from hero card portrait
+        if (heroIcon != null && HeroCard.cardFaceSprite != null)
+            heroIcon.sprite = HeroCard.cardFaceSprite;
+
+        // Populate cost from linked unit data
+        if (costText != null && HeroCard.linkedUnitData != null)
         {
-            Debug.LogWarning($"[HeroSlotUI] heroPrefabs[{slotIndex}] is null.");
-            return;
+            DefenderUnitData defender = HeroCard.linkedUnitData as DefenderUnitData;
+            if (defender != null)
+                costText.text = defender.placementCost.ToString();
         }
 
-        // Lấy cost từ Hero component
-        Hero hero = heroPrefab.GetComponent<Hero>();
-        if (hero != null && costText != null)
-        {
-            costText.text = hero.cost.ToString();
-        }
-        else if (hero == null)
-        {
-            Debug.LogWarning($"[HeroSlotUI] Hero component not found on prefab '{heroPrefab.name}'.");
-        }
-
-        // Lấy sprite từ SpriteRenderer và gán vào Image
-        SpriteRenderer spriteRenderer = heroPrefab.GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null && heroIcon != null)
-        {
-            heroIcon.sprite = spriteRenderer.sprite;
-        }
-        else if (spriteRenderer == null)
-        {
-            Debug.LogWarning($"[HeroSlotUI] SpriteRenderer not found on prefab '{heroPrefab.name}'.");
-        }
+        IsInitialized = true;
     }
 }

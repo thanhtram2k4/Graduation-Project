@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be67270bf11a08c4a8f1cf790a0d2c9b, type: 3}
+  m_Name: Level_02_Medium
+  m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
+  levelIndex: 2
+  levelDisplayName: Level_02_Medium
+  levelDescription: 
+  gridColumns: 8
+  gridRows: 3
+  cellSize: 1
+  startingGold: 200
+  baseMaxHP: 1
+  threeStarHPThreshold: 0.8
+  twoStarHPThreshold: 0.4
+  maxLineupSize: 5
+  lanes:
+  - laneIndex: 1
+    spawnColumn: 0
+    baseColumn: 0
+    laneType: 0
+  - laneIndex: 2
+    spawnColumn: 0
+    baseColumn: 0
+    laneType: 0
+  - laneIndex: 3
+    spawnColumn: 0
+    baseColumn: 0
+    laneType: 0
+  waves:
+  - waveIndex: 0
+    delayBeforeWave: 3.5
+    spawnInterval: 3
+    spawnEntries:
+    - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
+      laneIndex: 1
+      spawnDelay: 0
+      count: 2
+    - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
+      laneIndex: 2
+      spawnDelay: 0
+      count: 2
+    - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
+      laneIndex: 3
+      spawnDelay: 0
+      count: 2
+  - waveIndex: 1
+    delayBeforeWave: 4
+    spawnInterval: 2
+    spawnEntries:
+    - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
+      laneIndex: 1
+      spawnDelay: 0
+      count: 3
+    - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
+      laneIndex: 2
+      spawnDelay: 0
+      count: 3
+    - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
+      laneIndex: 3
+      spawnDelay: 0
+      count: 3
+  hasLaneSweepers: 1
+  laneSweeperPrefab: {fileID: 879358818025145857, guid: 80a5301696bb5af4f8409fd2dc040980, type: 3}
+  laneSweeperSpeed: 20

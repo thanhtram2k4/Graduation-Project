@@ -13,9 +13,15 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [Header("Level Configuration")]
-    [Tooltip("Assign the LevelConfig ScriptableObject for the current level. " +
-             "Starting Gold and Base HP are read from this asset — never hardcoded.")]
-    public LevelConfig currentLevelConfig;
+    [Tooltip("Fallback LevelConfig used when CampaignManager is not present. " +
+             "When CampaignManager exists, config is read from it instead.")]
+    public LevelConfig fallbackLevelConfig;
+
+    /// <summary>
+    /// Active LevelConfig for the current session. Resolved from CampaignManager
+    /// if available, otherwise falls back to the serialized fallbackLevelConfig.
+    /// </summary>
+    public LevelConfig currentLevelConfig { get; private set; }
 
     [Header("Runtime State (read-only at runtime)")]
     public bool isGameOver;
@@ -45,6 +51,16 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        // Resolve LevelConfig from CampaignManager (if present) or fallback
+        if (CampaignManager.Instance != null)
+        {
+            currentLevelConfig = CampaignManager.Instance.CurrentLevelConfig;
+        }
+        else
+        {
+            currentLevelConfig = fallbackLevelConfig;
+        }
+
         // Initialize EconomyManager with level config (data-driven, Rule 01/03)
         if (EconomyManager.Instance != null && currentLevelConfig != null)
         {

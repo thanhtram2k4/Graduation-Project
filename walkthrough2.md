@@ -14,7 +14,7 @@ Log chi tiet tung buoc refactor, giai thich ly do va trang thai hoan thanh.
 - [x] **C3. FSM Infrastructure** — BaseState, StateMachine, StateFactory + Enemy States
 - [x] **C6. Base HP System & Outcome UI** — Base entity HP + Defeat/Victory UI panels
 - [x] **C7. LevelStateManager** — Preparing/Defending/Ending state machine
-- [ ] **C9. WaveData Integration** — Ket noi EnemySpawner voi LevelConfig
+- [x] **C9. WaveData Integration** — Ket noi EnemySpawner voi LevelConfig
 - [ ] **C10. Grid Unification** — Hop nhat 2 he thong grid
 - [x] **C11. Resource Generation System** — Dragon Egg passive income
 - [x] **C12. Active Skill System** — Egg Shower board-level skill
@@ -714,85 +714,66 @@ Game chua co state machine trung tam cho tien trinh level. Logic Preparing/Defen
 **Nguyen tac thiet ke:** State machine trung tam so huu toan bo trang thai level. Moi he thong khac (UI, EnemySpawner, PauseManager) chi phan ung qua event — khong bao gio truy van truc tiep.
 
 ```
-[UI Layer]                          [Gameplay Layer]
-LevelStateUI                        LevelStateManager
-    │                                     │
-    │                                     │── Start() → TransitionTo(Preparing)
-    │   ←── Subscribe                     │── Publish LevelStateChangedEvent
-    │   LevelStateChangedEvent    ←──────│
-    │── Show "Start Wave" button          │
-    │                                     │
-    │── onClick → Publish                 │
-    │   StartWaveRequestedEvent ────────→ │── HandleStartWaveRequested()
-    │                                     │── TransitionTo(Defending)
-    │   ←── Subscribe                     │── Publish LevelStateChangedEvent
-    │   LevelStateChangedEvent    ←──────│
-    │── Hide "Start Wave" button          │
-    │                                     │
-    │   (DefeatEvent from                 │
-    │    BaseHealthManager) ────────────→ │── HandleDefeat()
-    │                                     │── TransitionTo(Ending)
-    │                                     │
-    │   (VictoryEvent from                │
-    │    future WaveManager) ───────────→ │── HandleVictory()
-    │                                     │── TransitionTo(Ending)
+[Gameplay Layer]
+LevelStateManager
+    │
+    │── Start() → TransitionTo(Intro)
+    │── ... → Drafting → Shuffling → Preparing
+    │
+    │── TransitionTo(Preparing)
+    │       → StartCoroutine(AutoStartWaveCoroutine)
+    │       → Wait autoStartWaveDelay (default 5s)
+    │       → TransitionTo(Defending)
+    │
+    │   (DefeatEvent from
+    │    BaseHealthManager) ────────────→ HandleDefeat()
+    │                                     TransitionTo(Ending)
+    │
+    │   (VictoryEvent from
+    │    EnemySpawner) ────────────────→ HandleVictory()
+    │                                     TransitionTo(Ending)
 ```
 
-**Step 1: `GameEvents.cs` + `GameEventBus.cs`** (SUA)
-- Them `StartWaveRequestedEvent` struct (rong, value type, zero-alloc) — UI publish de yeu cau bat dau wave.
-- `LevelStateChangedEvent` va `LevelState` enum DA CO SAN tu C1 va Phase 2 — khong can sua.
-- Them event field `OnStartWaveRequested`, `Publish()` overload, va dong trong `Reset()`.
-
-**Step 2: `LevelStateManager.cs`** (TAO MOI — Gameplay Layer)
+**Step 1: `LevelStateManager.cs`** (SUA — Auto-Start Wave)
 - Singleton MonoBehaviour dat tai `Assets/Scripts/Core/Level/`.
 - `CurrentState` property (read-only) — cac he thong khac co the doc nhung khong ghi.
-- `Start()`: goi `TransitionTo(LevelState.Preparing)` — publish `LevelStateChangedEvent` ngay.
-- `OnEnable()`: subscribe `OnStartWaveRequested`, `OnDefeat`, `OnVictory`.
+- `Start()`: goi `TransitionTo(LevelState.Intro)` — publish `LevelStateChangedEvent` ngay.
+- `OnEnable()`: subscribe `OnStartWaveRequested`, `OnWaveCompleted`, `OnDefeat`, `OnVictory`, va 3 Phase 4 events.
 - `OnDisable()`: unsubscribe tat ca — chong memory leak (Rule 07).
-- `HandleStartWaveRequested()`: chi chuyen state neu dang `Preparing` — bo qua neu khong dung state.
+- **Auto-Start Wave:** Khi `TransitionTo(Preparing)` duoc goi, tu dong bat dau coroutine `AutoStartWaveCoroutine()`.
+  - `[SerializeField] private float autoStartWaveDelay = 5f;` — cau hinh trong Inspector.
+  - Coroutine doi `autoStartWaveDelay` giay, sau do goi `TransitionTo(Defending)` neu van dang o `Preparing`.
+  - Coroutine duoc huy (`StopCoroutine`) moi khi `TransitionTo()` duoc goi — dam bao an toan khi state thay doi truoc khi het delay.
+  - **Khong can nut "Start Wave" trong UI** — wave tu dong bat dau sau delay.
+- `HandleStartWaveRequested()`: van giu lai de tuong thich — neu co event nay thi chuyen ngay lap tuc (huy coroutine auto-start).
 - `HandleDefeat()`: chuyen sang `Ending` — guard chong duplicate.
 - `HandleVictory()`: chuyen sang `Ending` — guard chong duplicate.
-- `TransitionTo()`: luu previous state, cap nhat current, publish event, log transition.
+- `TransitionTo()`: huy pending auto-start coroutine, luu previous state, cap nhat current, publish event, log transition, bat dau auto-start coroutine neu state moi la `Preparing`.
 - Khong reference bat ky UI script nao.
-
-**Step 3: `LevelStateUI.cs`** (TAO MOI — UI Layer)
-- `[SerializeField] Button startWaveButton` — keo tu Inspector.
-- `OnEnable/OnDisable`: subscribe/unsubscribe `OnLevelStateChanged` (Rule 07).
-- `HandleLevelStateChanged()`: show button khi `Preparing`, hide khi `Defending`/`Ending`.
-- `OnStartButtonClicked()`: **public** method cho Inspector UnityEvent. Publish `StartWaveRequestedEvent`.
-- **KHONG reference truc tiep** `LevelStateManager` hay bat ky gameplay script nao — chi giao tiep qua `GameEventBus`.
 
 ### Ly do giai quyet vi pham Rule
 
 **Rule 01 §1.1 (Level States):**
 - Implement dung 3 trang thai tuan tu: Preparing → Defending → Ending.
-- "Start Wave" chuyen tu Preparing sang Defending — dung nhu Rule 01 mo ta.
+- Auto-start coroutine tu dong chuyen tu Preparing sang Defending sau `autoStartWaveDelay` giay — khong can nut "Start Wave" thu cong.
 - DefeatEvent/VictoryEvent chuyen sang Ending — "Transition immediately to Ending (Defeat)."
 
 **Rule 07 (UI-Gameplay Separation):**
 - `LevelStateManager` (Gameplay) KHONG reference bat ky UI script nao. Chi publish events.
-- `LevelStateUI` (UI) KHONG reference bat ky gameplay script nao. Chi subscribe events va publish request events.
-- Giao tiep duy nhat: `GameEventBus` — typed struct events, zero boxing, zero GC.
-
-**Rule 07 (Event-Driven UI):**
-- UI subscribe `LevelStateChangedEvent` de toggle button — khong poll.
-- UI publish `StartWaveRequestedEvent` — gameplay react. Khong goi truc tiep.
+- Auto-start logic nam hoan toan trong Gameplay layer — khong co UI dependency.
 
 **Rule 07 (GC Prevention):**
-- `StartWaveRequestedEvent` la struct (value type) — zero heap allocation.
-- `LevelStateChangedEvent` la struct (value type) — da co san.
+- `LevelStateChangedEvent` la struct (value type) — zero heap allocation.
+- Coroutine dung `WaitForSeconds` (Unity built-in, cached) — khong GC overhead.
 
 **Rule 10 (Scene Cleanup):**
 - `OnEnable/OnDisable` pattern cho moi event subscription — tu dong cleanup khi scene unload.
-- `OnStartWaveRequested` da duoc them vao `GameEventBus.Reset()` — clear khi chuyen scene.
+- Auto-start coroutine duoc huy trong `TransitionTo()` — khong leak khi state thay doi.
 
 ### Files thay doi
 | File | Hanh dong |
 |---|---|
-| `Assets/Scripts/Core/Events/GameEvents.cs` | SUA — Them StartWaveRequestedEvent struct |
-| `Assets/Scripts/Core/Events/GameEventBus.cs` | SUA — Them OnStartWaveRequested, Publish, Reset |
-| `Assets/Scripts/Core/Level/LevelStateManager.cs` | TAO MOI — Singleton state machine, event-driven transitions |
-| `Assets/Scripts/UI/LevelStateUI.cs` | TAO MOI — Start Wave button UI, event-driven visibility |
+| `Assets/Scripts/Core/Level/LevelStateManager.cs` | SUA — Them auto-start wave coroutine, serialized delay config |
 
 ---
 
@@ -801,9 +782,13 @@ LevelStateUI                        LevelStateManager
 ### 1. Tao GameObject "LevelStateManager"
 - Tao empty GameObject trong scene, dat ten `LevelStateManager`.
 - Gan component `LevelStateManager.cs`.
-- **Khong can cau hinh gi trong Inspector** — tat ca hoat dong qua events.
 
-### 2. Script Execution Order
+### 2. Cau hinh Auto-Start Delay trong Inspector
+- Chon GameObject `LevelStateManager`.
+- Trong Inspector, truong **Auto Start Wave Delay** (mac dinh 5 giay).
+- Chinh gia tri neu can — day la thoi gian nguoi choi co de sap xep quan truoc khi wave bat dau.
+
+### 3. Script Execution Order
 - Khong can thay doi — `LevelStateManager` su dung `Start()` (khong phai `Awake()`), dam bao chay sau cac manager khac.
 - Thu tu hien tai van dung:
 ```
@@ -813,33 +798,283 @@ GameManager:           0
 LevelStateManager:     0  (default — dung Start())
 ```
 
-### 3. Tao UI — Start Wave Button
-- Trong Canvas, tao hierarchy:
+### 4. Khong can tao Start Wave Button
+- Wave tu dong bat dau sau `autoStartWaveDelay` giay khi vao Preparing state.
+- Khong can UI button, khong can `LevelStateUI.cs`.
+
+
+## C9. WaveData Integration (HOAN THANH)
+
+### Van de
+
+`EnemySpawner.cs` co 3 vi pham nghiem trong:
+
+1. **Spawning ngay lap tuc** — `Start()` goi `StartCoroutine(SpawnWaves())` khong doi `LevelStateManager`. Enemy xuat hien truoc khi nguoi choi hoan thanh Draft & Shuffle. Vi pham Rule 01 (Preparing: "No enemies spawn or move").
+2. **Hard-coded wave logic** — So luong enemy (`enemiesPerWave + currentWave`), loai enemy (`Random.Range`), va toc do spawn (`spawnInterval` giam dan) deu hard-coded trong script. Vi pham Rule 03 (Data-Driven: "No character parameter is hard-coded") va Rule 07 ("Zero hard-coded constants in C# scripts").
+3. **Khong co win-state tracking** — Spawner khong biet khi nao tat ca enemy da bi tieu diet de publish `VictoryEvent`. `WaveStartedEvent.TotalWaves` luon la 0.
+
+### Giai phap
+
+**Buoc 1: Refactor `EnemySpawner.cs` — Event-Driven + Data-Driven**
+
+- **XOA:** Tat ca `public` fields cu (`enemyPrefabs`, `enemiesPerWave`, `waveCooldown`, `spawnIntervalDecrease`, `minSpawnInterval`).
+- **XOA:** Spawning loop trong `Start()`.
+- **THEM:** Subscribe `GameEventBus.OnLevelStateChanged` trong `OnEnable`/`OnDisable` (Rule 07).
+- **THEM:** Handler `HandleLevelStateChanged()` — CHI bat dau spawn khi `evt.NewState == LevelState.Defending`. Tat ca state khac (Intro, Drafting, Shuffling, Preparing, Ending) bi bo qua.
+- **THEM:** `SpawnWavesRoutine()` coroutine doc `GameManager.Instance.currentLevelConfig.waves`:
+  - Vong lap qua tung `WaveData` (bat dau tu `_currentWaveIndex`).
+  - Doi `wave.delayBeforeWave` giay.
+  - Publish `WaveStartedEvent { WaveIndex, TotalWaves }` voi du lieu tu `LevelConfig.TotalWaves`.
+  - Spawn tung `EnemySpawnEntry` bang sub-coroutine `SpawnEntryRoutine()` (xu ly `spawnDelay`, `count`, `spawnInterval` doc tu SO).
+  - Doi tat ca enemy cua wave bi tieu diet truoc khi chuyen wave tiep.
+  - Publish `WaveCompletedEvent { WaveIndex, TotalWaves, IsFinalWave }`.
+  - Neu khong phai final wave: dung coroutine, luu `_currentWaveIndex` cho wave tiep theo. `LevelStateManager` se chuyen ve `Preparing` de nguoi choi sap xep lai quan.
+- **THEM:** `SpawnEnemy()` dung `ObjectPoolManager.Instance.Get(enemyData.unitPrefab)` — khong `Instantiate()` (Rule 07).
+- **THEM:** `PreWarmPools()` trong `Start()` — duyet tat ca wave entries va pre-allocate pool cho moi enemy prefab.
+
+**Buoc 2: Win-State Tracking**
+
+- **THEM:** `_activeEnemiesCount` (int) — tang khi spawn, giam khi enemy bi diet hoac cham base.
+- **THEM:** Subscribe `GameEventBus.OnEnemyDestroyed` va `GameEventBus.OnBaseTakeDamage` trong `OnEnable`/`OnDisable`.
+- **THEM:** `CheckVictoryCondition()` — khi `_hasStartedSpawning == true` VA `_allWavesSpawned == true` VA `_activeEnemiesCount <= 0`:
+  - Guard: `if (!_hasStartedSpawning) return;` — ngan victory khi chua co enemy nao xuat hien.
+  - Tim `BaseHealthManager` de doc `CurrentHP`.
+  - Tinh `hpFraction = CurrentHP / baseMaxHP`.
+  - Goi `LevelConfig.EvaluateStars(hpFraction)` de xac dinh so sao.
+  - Publish `VictoryEvent { StarsEarned, Score }`.
+  - Co `_victoryPublished` ngan publish trung.
+
+**Buoc 3: Cap nhat `LevelStateManager.cs` — WaveCompletedEvent Handler**
+
+- **THEM:** Subscribe `GameEventBus.OnWaveCompleted` trong `OnEnable`/`OnDisable`.
+- **THEM:** `HandleWaveCompleted(WaveCompletedEvent evt)`:
+  - Guard: chi xu ly khi `CurrentState == Defending`.
+  - Neu `!evt.IsFinalWave` → `TransitionTo(LevelState.Preparing)` (Rule 01: "If more waves remain → back to Preparing").
+  - Final wave: khong lam gi — `VictoryEvent` tu `EnemySpawner` se xu ly.
+
+### Multi-Wave Flow
+
 ```
-[Canvas]
-  +-- StartWaveButton              ← Button (Unity UI)
-        +-- LevelStateUI.cs       ← Add Component
-        +-- Text                   ← TextMeshPro: "BẮT ĐẦU" hoac "START WAVE"
-              Font Size = 24-32
-              Color = trang hoac vang
+[Preparing] → AutoStartWaveCoroutine (doi 5s)
+    → LevelStateManager: Preparing → Defending
+    → LevelStateChangedEvent { NewState = Defending }
+    → EnemySpawner: StartCoroutine(SpawnWavesRoutine)
+        → Wave 0: delayBeforeWave → WaveStartedEvent → spawn entries → doi clear
+        → WaveCompletedEvent { IsFinalWave = false }
+        → LevelStateManager: Defending → Preparing
+        → EnemySpawner: dung coroutine, luu _currentWaveIndex = 1
+
+[Preparing] → AutoStartWaveCoroutine (doi 5s)
+    → LevelStateManager: Preparing → Defending
+    → LevelStateChangedEvent { NewState = Defending }
+    → EnemySpawner: resume tu wave 1
+        → Wave 1: ... → WaveCompletedEvent { IsFinalWave = true }
+        → _allWavesSpawned = true
+        → CheckVictoryCondition() → VictoryEvent
+        → LevelStateManager: → Ending
 ```
-- Keo `StartWaveButton` (chinh no hoac child Button component) vao truong `startWaveButton` tren `LevelStateUI`.
 
-### 4. Wire Button OnClick trong Inspector
-- Chon StartWaveButton trong Hierarchy.
-- Trong Button component → OnClick() → bam `+`.
-- Keo `LevelStateUI` component (hoac GameObject chua no) vao object slot.
-- Chon: `LevelStateUI → OnStartButtonClicked`.
-- **KHONG dung `AddListener` trong code** — da wire qua Inspector.
+### Ly do giai quyet vi pham Rule
 
-### 5. Vi tri Button
-- Dat button o vi tri de thay (center-bottom hoac center-top cua man hinh).
-- Button chi hien thi trong giai doan Preparing — tu dong an khi Defending/Ending.
+| Rule | Truoc | Sau |
+|---|---|---|
+| Rule 01 | Enemy spawn ngay trong `Start()`, bo qua Draft/Shuffle | Chi spawn khi `LevelState.Defending`, doi qua Intro→Drafting→Shuffling→Preparing |
+| Rule 01 | Khong co win detection | `VictoryEvent` publish khi all waves cleared + all enemies resolved + Base HP > 0 |
+| Rule 01 | Khong co multi-wave Preparing gap | `WaveCompletedEvent` chuyen ve Preparing giua cac wave |
+| Rule 03 | Hard-coded `enemiesPerWave`, random enemy type | Doc `WaveData.spawnEntries`, `EnemySpawnEntry.enemyData`, `count`, `spawnDelay` tu LevelConfig SO |
+| Rule 07 | `spawnInterval`, `waveCooldown` la magic numbers | Doc `WaveData.spawnInterval`, `WaveData.delayBeforeWave` tu SO |
+| Rule 07 | `Instantiate()` implicit (ObjectPoolManager.Get co nhung logic cu van random) | `ObjectPoolManager.Instance.Get(enemyData.unitPrefab)` — prefab tu SO |
+| Rule 07 | Subscribe/unsubscribe events khong co | `OnEnable`/`OnDisable` cho 3 events (Rule 07 memory leak prevention) |
 
+### Files thay doi
 
-## C9. WaveData Integration (CHUA BAT DAU)
+| File | Hanh dong |
+|---|---|
+| `Assets/Scripts/Enemies/EnemySpawner.cs` | VIET LAI — Event-driven, data-driven spawning + win tracking |
+| `Assets/Scripts/Core/Level/LevelStateManager.cs` | SUA — Them WaveCompletedEvent handler cho multi-wave flow |
 
-*Se implement sau C7.*
+### Kiem tra sau refactor (Audit)
+
+Sau khi refactor, thuc hien kiem tra toan bo de xac nhan khong con rogue spawning:
+
+**`EnemySpawner.cs` — Ket qua kiem tra:**
+
+| Method | Co spawn tu dong? | Trang thai |
+|---|---|---|
+| `OnEnable()` | Khong — chi subscribe events | Sach |
+| `Start()` | Khong — chi cache `_levelConfig` va pre-warm pools | Sach |
+| `HandleLevelStateChanged()` | Co guard: `if (evt.NewState == LevelState.Defending)`, reset `_hasStartedSpawning = false` | Sach |
+| `SpawnWavesRoutine()` | Chi chay khi handler phia tren goi. Guard waves rong: `yield break` + `LogError` | Sach |
+| `SpawnEnemy()` | Chi goi tu trong coroutine. Set `_hasStartedSpawning = true` | Sach |
+| `CheckVictoryCondition()` | Guard: `_victoryPublished` → `_hasStartedSpawning` → `_allWavesSpawned` → `_activeEnemiesCount` | Sach |
+
+**`LevelStateManager.cs` — Ket qua kiem tra:**
+
+| Kiem tra | Trang thai |
+|---|---|
+| `Start()` goi `TransitionTo(LevelState.Intro)` (dong 67) | Dung |
+| Khong co auto-jump den Defending | Dung — chi `HandleStartWaveRequested` chuyen sang Defending |
+| Guard: `CurrentState != LevelState.Preparing` (dong 155) | Dung |
+| Flow nghiem ngat qua state guards tren tat ca handlers | Dung |
+
+**Kiem tra toan project — Khong co script nao khac spawn enemy:**
+
+- `grep -r "ObjectPoolManager.*Get.*enemy\|Instantiate.*enemy"` — chi tra ve `EnemySpawner.cs:292`.
+- `Enemy.cs` — chi la facade/orchestrator, khong co spawning logic.
+- Khong co enemy prefab nao duoc dat truc tiep trong scene hierarchy.
+
+**Luu y ve scene file (`URP2DSceneTemplate.unity`):**
+
+Scene file van chua du lieu serialized cu tu phien ban `EnemySpawner` truoc refactor (dong 3567-3580): `enemyPrefabs`, `enemiesPerWave`, `waveCooldown`, `spawnIntervalDecrease`, `minSpawnInterval`. Cac fields nay **khong con ton tai** trong class C# moi, Unity se tu dong bo qua chung khi deserialize — **khong gay spawning**. Inspector se hien "Type Mismatch" warnings cho cac orphaned fields nay.
+
+**Neu enemy van xuat hien trong Intro/Drafting/Shuffling, kiem tra:**
+
+1. **Enemy GameObjects dat truc tiep trong scene hierarchy** (khong qua spawner) — xoa chung.
+2. **Unity chua recompile** sau refactor — bam `Ctrl+R` hoac sua bat ky script nao de force recompile.
+3. **Script Execution Order** — dam bao `LevelStateManager` chay truoc `EnemySpawner` (hoac dung event nen thu tu khong quan trong).
+
+---
+
+## C9a. Instant Win Bug Fix (HOAN THANH)
+
+### Van de
+
+Bug "Instant Win": Khi game chuyen sang `LevelState.Defending`, `EnemySpawner` publish `VictoryEvent` ngay lap tuc. Nguyen nhan:
+- Neu `LevelConfig.waves` rong (null hoac count = 0), `SpawnWavesRoutine` ket thuc ngay, `_allWavesSpawned` duoc set `true`, va `_activeEnemiesCount == 0` → `CheckVictoryCondition()` fire victory.
+- Neu co delay truoc khi enemy dau tien spawn (vi du `delayBeforeWave > 0`), `CheckVictoryCondition()` co the duoc goi boi event handler truoc khi bat ky enemy nao xuat hien, voi `_activeEnemiesCount == 0`.
+
+### Giai phap
+
+4 thay doi trong `EnemySpawner.cs`:
+
+**1. Guard waves rong trong `SpawnWavesRoutine()`:**
+- Dau coroutine, kiem tra `_levelConfig.waves == null || _levelConfig.waves.Count == 0`.
+- Neu dung: `Debug.LogError()` thong bao designer them wave data, KHONG set `_allWavesSpawned = true`, `yield break;`.
+- Ngan spawner chay voi level config thieu du lieu.
+
+**2. Them co `_hasStartedSpawning`:**
+- `private bool _hasStartedSpawning = false;` — chi set `true` SAU KHI enemy dau tien duoc spawn qua `ObjectPoolManager.Instance.Get()`.
+- Reset ve `false` trong `HandleLevelStateChanged()` khi bat dau Defending moi.
+
+**3. Guard trong `CheckVictoryCondition()`:**
+- Them `if (!_hasStartedSpawning) return;` — victory KHONG BAO GIO duoc tuyen bo truoc khi co it nhat 1 enemy da xuat hien tren ban do.
+- Thu tu guard day du: `_victoryPublished` → `_hasStartedSpawning` → `_allWavesSpawned` → `_activeEnemiesCount > 0`.
+
+**4. `_allWavesSpawned` chi set sau final spawn:**
+- `_allWavesSpawned = true` chi duoc set SAU KHI vong `for` cua `SpawnWavesRoutine` hoan thanh het tat ca waves — tuc la SAU KHI enemy cuoi cung cua wave cuoi da duoc spawn.
+- Khong co duong nao khac de set `_allWavesSpawned = true` (guard waves rong `yield break` truoc khi den dong nay).
+
+### Ly do giai quyet
+
+| Van de | Truoc | Sau |
+|---|---|---|
+| Waves rong → instant victory | `SpawnWavesRoutine` chay het loop (0 iterations), set `_allWavesSpawned = true` | `yield break` + `LogError`, KHONG set `_allWavesSpawned` |
+| Delay truoc spawn → victory som | `CheckVictoryCondition` chi check `_allWavesSpawned` va `_activeEnemiesCount` | Them guard `_hasStartedSpawning` — phai co it nhat 1 enemy da spawn |
+| Race condition event handler | `HandleEnemyDestroyed`/`HandleBaseTakeDamage` co the fire truoc first spawn | `_hasStartedSpawning` block victory check cho den khi co enemy thuc su |
+
+### Files thay doi
+
+| File | Hanh dong |
+|---|---|
+| `Assets/Scripts/Enemies/EnemySpawner.cs` | SUA — Them `_hasStartedSpawning` flag, empty waves guard, victory condition guard |
+
+---
+
+## C9b. UI Panel Stacking Fix (HOAN THANH)
+
+### Van de
+
+`LevelIntroPanel`, `DraftingPanel`, va `ShufflePanel` deu hien thi dong thoi khi scene load, chong len nhau. Vi pham Rule 01 (chi 1 state active tai 1 thoi diem) va Rule 07 (UI reactive, khong poll).
+
+**Nguyen nhan goc:**
+- Cac child panel (`introPanel`, `draftPanel`, `cutscenePanel`) bat dau **active by default** trong scene.
+- Unity execution order: `Awake → OnEnable → Start`. Tat ca UI scripts subscribe trong `OnEnable()`, nhung `LevelStateManager.Start()` chua fire `LevelStateChangedEvent` tai thoi diem do.
+- Co 1 frame window giua khi scene load va khi event dau tien fire, trong do tat ca panels deu visible.
+- Neu Inspector reference cho child panel bi **null** (chua assign), `SetActive()` call bi skip do null guard → panel khong bao gio bi an.
+
+### Tai sao KHONG dung `gameObject.SetActive(false)`
+
+Neu dung `gameObject.SetActive(false)` tren **root GameObject** cua UI script:
+1. `OnDisable()` fire → unsubscribe khoi `GameEventBus.OnLevelStateChanged`.
+2. Panel bi "chet vinh vien" — khong co gi co the danh thuc no khi target state den.
+3. Vi du: `LevelIntroUI` disable root → unsubscribe → khi `LevelState.Intro` fire, khong ai nhan event → panel khong bao gio hien.
+
+**Quy tac:** Root GameObject cua UI script phai **luon active** de duy tri event subscription. Chi toggle **child panel** (visual container).
+
+### Giai phap
+
+Them `Start()` vao moi UI script de an child panel **truoc khi** event dau tien fire. Event handler giu nguyen — toggle child panel theo state.
+
+**`LevelIntroUI.cs` (dong 43-50):**
+```csharp
+private void Start()
+{
+    if (introPanel != null)
+        introPanel.SetActive(false);
+}
+```
+Handler: `introPanel.SetActive(evt.NewState == LevelState.Intro)` — da co san.
+
+**`DraftingUI.cs` (dong 91-98):**
+```csharp
+private void Start()
+{
+    if (draftPanel != null)
+        draftPanel.SetActive(false);
+}
+```
+Handler: `draftPanel.SetActive(evt.NewState == LevelState.Drafting)` — da co san.
+
+**`ShuffleCutsceneUI.cs` (dong 106-113):**
+```csharp
+private void Start()
+{
+    if (cutscenePanel != null)
+        cutscenePanel.SetActive(false);
+}
+```
+Handler: `cutscenePanel.SetActive(evt.NewState == LevelState.Shuffling)` — da co san.
+
+### Execution Timeline (Sau fix)
+
+```
+Frame 0:
+  Awake()    → tat ca objects khoi tao
+  OnEnable() → tat ca UI scripts subscribe GameEventBus.OnLevelStateChanged
+  Start()    → LevelIntroUI:       introPanel.SetActive(false)
+             → DraftingUI:         draftPanel.SetActive(false)
+             → ShuffleCutsceneUI:  cutscenePanel.SetActive(false)
+             → LevelStateManager:  TransitionTo(LevelState.Intro)
+                 → LevelIntroUI handler:      introPanel.SetActive(true)   ← CHI PANEL NAY HIEN
+                 → DraftingUI handler:        draftPanel.SetActive(false)  ← giu an
+                 → ShuffleCutsceneUI handler: cutscenePanel.SetActive(false) ← giu an
+```
+
+### Kiem tra `LevelStateManager.cs`
+
+| Kiem tra | Ket qua |
+|---|---|
+| `TransitionTo(LevelState.Intro)` trong `Start()` (dong 67), KHONG phai `Awake()` | Dung — dam bao tat ca UI da subscribe truoc khi event fire |
+| Auto-start wave: `TransitionTo(Preparing)` bat dau `AutoStartWaveCoroutine` (doi `autoStartWaveDelay` giay) | Dung — tu dong chuyen sang Defending sau delay |
+| Coroutine duoc huy trong `TransitionTo()` truoc khi set state moi | Dung — chong duplicate transition |
+| Flow: Intro → Drafting → Shuffling → Preparing → (auto 5s) → Defending | Dung |
+
+### Yeu cau Inspector
+
+Dam bao cac child panel references da duoc **assign trong Inspector**:
+- `LevelIntroUI` → truong `introPanel` → keo Panel GameObject vao
+- `DraftingUI` → truong `draftPanel` → keo Panel GameObject vao
+- `ShuffleCutsceneUI` → truong `cutscenePanel` → keo Panel GameObject vao
+
+Neu null, `SetActive()` bi skip boi null guard → panel khong bao gio bi an/hien.
+
+### Files thay doi
+
+| File | Hanh dong |
+|---|---|
+| `Assets/Scripts/UI/LevelIntroUI.cs` | SUA — Them `Start()` an `introPanel` truoc event |
+| `Assets/Scripts/UI/DraftingUI.cs` | SUA — Them `Start()` an `draftPanel` truoc event |
+| `Assets/Scripts/UI/ShuffleCutsceneUI.cs` | SUA — Them `Start()` an `cutscenePanel` truoc event |
 
 ---
 
@@ -849,232 +1084,5 @@ LevelStateManager:     0  (default — dung Start())
 
 ---
 
-## C11. Resource Generation System — Dragon Egg (HOAN THANH)
+*Note: Remaining sections (C11 onwards) have been moved to walkthrough3.md*
 
-### Van de
-Rule 01 cho phep "Passive Income (optional): Certain troops may generate periodic Gold while deployed." `ResourceDefenderData` SO da co cac truong `produceCooldown`, `resourceAmount`, `resourcePrefab` nhung chua co component runtime nao su dung chung. Khong co script nao cho phep nguoi choi nhan Gold tu resource pickup.
-
-### Giai phap
-Tao 2 component moi trong `Assets/Scripts/Gameplay/Components/`:
-
-**`ResourceGeneratorComponent.cs`**
-- Single-responsibility: chi quan ly timer san xuat va spawn resource.
-- `Initialize(produceCooldown, resourceAmount, resourcePrefab)` — doc tu `ResourceDefenderData` SO (Rule 03).
-- Timer tick trong `Update()` bang `Time.deltaTime` — tu dong dung khi pause (Rule 10).
-- Khi timer het, goi `ObjectPoolManager.Instance.Get(resourcePrefab)` — khong `Instantiate()` (Rule 07).
-- Spawn voi random offset quanh unit (`±0.6 X`, `0~0.8 Y`) de tranh chong cheo.
-- Goi `ResourcePickup.Initialize()` truyen Gold amount va jump arc parameters.
-- `OnDisable()` reset state cho pool lifecycle.
-
-**`ResourcePickup.cs`**
-- Single-responsibility: chi quan ly click detection, Gold collection, va lifetime.
-- `Initialize(goldAmount, targetPosition, jumpHeight, jumpDuration)` — nhan gia tri tu generator.
-- **Jump arc motion:** Parabolic arc tu vi tri unit den target offset. Lerp XY + parabolic Y offset (`4t(1-t)` formula). Duration 0.4s.
-- **Click detection:** `OnMouseDown()` — can Collider2D tren prefab. Kiem tra `_isCollected` de chong double-click.
-- Khi click: goi `EconomyManager.Instance.AddGold(goldAmount)`, publish `ResourceCollectedEvent` (Rule 08), roi `Release()` ve pool.
-- **Lifetime timer:** 10 giay. Neu khong click, tu dong `Release()` ve pool — tranh memory bloat (Rule 07).
-- `OnDisable()` reset state cho pool lifecycle.
-
-**`GameEvents.cs` + `GameEventBus.cs` (SUA)**
-- Them `ResourceCollectedEvent` struct (GoldAmount, Position) — cho AudioManager va UI floating text.
-- Them event field `OnResourceCollected` va `Publish()` overload trong GameEventBus.
-- Them vao `Reset()` de clear subscription khi chuyen scene (Rule 10).
-
-### Ly do giai quyet vi pham Rule
-- **Rule 01 (Passive Income):** Implement co che "certain troops generate periodic Gold" da ghi trong Rule.
-- **Rule 03 (Data-Driven):** Tat ca stats doc tu `ResourceDefenderData` SO — zero hardcode.
-- **Rule 07 (Object Pooling):** Resource pickup spawn/release qua `ObjectPoolManager`. Khong `Instantiate()`/`Destroy()`.
-- **Rule 07 (Component-Based):** Moi component < 150 dong, single-responsibility. ResourceGeneratorComponent chi quan ly timer. ResourcePickup chi quan ly collection.
-- **Rule 07 (GC Prevention):** Khong string concat trong Update. Named constants thay magic numbers. `ResourceCollectedEvent` la struct.
-- **Rule 07 (Event-Driven):** `ResourceCollectedEvent` publish qua GameEventBus — AudioManager/UI subscribe, khong reference truc tiep.
-- **Rule 10 (Pause):** Timer dung `Time.deltaTime` — tu dong freeze khi `Time.timeScale = 0`.
-
-### Files thay doi
-| File | Hanh dong |
-|---|---|
-| `Assets/Scripts/Gameplay/Components/ResourceGeneratorComponent.cs` | TAO MOI — Production timer, pool spawn |
-| `Assets/Scripts/Gameplay/Components/ResourcePickup.cs` | TAO MOI — Click collect, lifetime, jump arc |
-| `Assets/Scripts/Core/Events/GameEvents.cs` | SUA — Them ResourceCollectedEvent struct |
-| `Assets/Scripts/Core/Events/GameEventBus.cs` | SUA — Them OnResourceCollected, Publish, Reset |
-
----
-
-## TO-DO TRONG UNITY EDITOR (SAU C11)
-
-### 1. Tao Dragon Egg Prefab
-- Tao GameObject moi, dat ten `DragonEgg` (hoac `TrungRong`).
-- Gan cac component:
-```
-[Dragon Egg Prefab]
-  +-- ResourcePickup.cs       ← Add Component
-  +-- SpriteRenderer           ← Gan sprite "Dragon Egg" vao
-  +-- CircleCollider2D         ← isTrigger = FALSE (can physics click detection)
-  +-- PooledObject.cs          ← TU DONG duoc gan boi ObjectPoolManager
-```
-- **Quan trong:** Dam bao Camera chinh co component `Physics2D Raycaster` hoac project co `Physics2D` settings cho phep raycasting (de `OnMouseDown` hoat dong).
-- Luu prefab vao `Assets/Prefabs/Pickups/` hoac `Assets/Prefabs/Resources/`.
-
-### 2. Them Pool Entry cho Dragon Egg
-- Mo `PoolConfig` SO (da tao o C2): `Assets/Data/MainPoolConfig.asset`.
-- Them entry moi:
-  - Pool Name: `ResourcePickupPool`
-  - Prefab: keo Dragon Egg prefab vao
-  - Initial Size: `10` (du cho 2-3 resource generators hoat dong dong thoi)
-
-### 3. Cau hinh ResourceDefenderData SO
-- Mo SO cua unit resource generator (vd: `Assets/Data/Units/ally_rongvang.asset`).
-- Dien cac truong:
-  - `produceCooldown`: 8-12 giay (tuy balance)
-  - `resourceAmount`: 25-50 Gold
-  - `resourcePrefab`: keo Dragon Egg prefab vao
-
-### 4. Gan ResourceGeneratorComponent vao Resource Defender Prefab
-- Mo prefab cua unit resource generator (vd: `Rồng Vàng`).
-- Them component `ResourceGeneratorComponent.cs`.
-- Component list day du:
-```
-[Resource Defender Prefab]
-  +-- Hero.cs (hoac facade tuong ung)  ← unitData: ResourceDefenderData SO
-  +-- HealthComponent.cs
-  +-- ResourceGeneratorComponent.cs     ← MOI — khong can cau hinh Inspector
-  +-- Animator
-  +-- Rigidbody2D (Kinematic)
-  +-- Collider2D
-```
-- **Luu y:** Unit facade (Hero.cs hoac tuong duong) can goi `ResourceGeneratorComponent.Initialize()` trong `InitializeFromData()`, truyen stats tu `ResourceDefenderData`.
-
-### 5. Setup Sorting Layer / Order
-- Dragon Egg sprite can hien tren unit va terrain.
-- Dat Sorting Layer: `UI` hoac `Foreground`, Order in Layer: cao hon unit sprites.
-
-### 6. Kiem tra Camera setup
-- Camera chinh (`MainCamera`) phai co tag "MainCamera".
-- `OnMouseDown` can camera render scene de phat hien click tren Collider2D.
-- Neu dung URP: dam bao `Physics2D Raycaster` khong bi disabled.
-
----
-
-## C12. Active Skill System — Egg Shower (HOAN THANH)
-
-### Van de
-Game can co che "Active Player Skill" cap board (khong gan voi hero cu the). Nguoi choi bam nut UI de kich hoat ky nang "Mua Trung Rong" (Egg Shower) — tha 3 Dragon Egg ngau nhien tren ban do. Ky nang co cooldown va UI button cap nhat visual (grayscale + radial fill) trong khi cho.
-
-He thong hien tai (C11) chi co passive resource generation. Chua co co che de nguoi choi chu dong kich hoat skill tu UI, cung chua co cau truc event de UI giao tiep voi gameplay layer ma khong coupling truc tiep.
-
-### Giai phap
-
-**Nguyen tac thiet ke:** Tach biet tuyet doi giua UI layer va Gameplay layer (Rule 07). UI chi publish event, Gameplay layer lang nghe va xu ly. Gameplay layer publish ket qua, UI lang nghe va cap nhat visual.
-
-```
-[UI Layer]                          [Gameplay Layer]
-SkillButtonUI                       EggShowerManager
-    │                                     │
-    │── onClick ──→ Publish               │
-    │          RequestEggShowerEvent ──→   │ HandleEggShowerRequested()
-    │                                     │── SpawnEggs() via ObjectPoolManager
-    │                                     │
-    │   ←── Subscribe                     │── Publish
-    │   EggShowerActivatedEvent    ←──────│   EggShowerActivatedEvent
-    │── StartCooldownVisual()             │
-```
-
-**Step 1: `EggShowerSkillData.cs`** (TAO MOI — ScriptableObject)
-- `[CreateAssetMenu]` duoi `HKSV/Data/Skills/Egg Shower Skill`.
-- Truong: `cooldownTime` (float), `spawnCount` (int, default 3), `goldPerEgg` (int), `resourcePrefab` (GameObject), `dropHeight` (float), `dropDuration` (float).
-- Tach biet voi `ActiveSkillData.cs` (Rule 04) vi day la skill cap board, khong phai skill cua hero cu the.
-- `OnValidate()` canh bao khi `resourcePrefab` null.
-
-**Step 2: `GameEvents.cs` + `GameEventBus.cs`** (SUA)
-- Them 2 event structs:
-  - `RequestEggShowerEvent` — rong, UI publish de request.
-  - `EggShowerActivatedEvent` — `EggsSpawned`, `CooldownDuration` — gameplay confirm.
-- Them 2 event fields, 2 `Publish()` overloads, va 2 dong trong `Reset()`.
-
-**Step 3: `EggShowerManager.cs`** (TAO MOI — Gameplay Layer)
-- Subscribe `OnEggShowerRequested` trong `OnEnable`, unsubscribe trong `OnDisable` (Rule 07).
-- `HandleEggShowerRequested()`: validate cooldown + skill data, goi `SpawnEggs()`, set cooldown timer, publish `EggShowerActivatedEvent`.
-- `SpawnEggs()`: loop `spawnCount` lan, moi lan:
-  - Random target position trong grid bounds (`minX/maxX/minY/maxY` — `[SerializeField]`).
-  - Start position phia tren target (`targetY + dropHeight`).
-  - `ObjectPoolManager.Instance.Get(resourcePrefab)` — khong `Instantiate()` (Rule 07).
-  - Goi `ResourcePickup.Initialize(goldPerEgg, targetPos, dropHeight, dropDuration)`.
-- Cooldown tick trong `Update()` bang `Time.deltaTime` — tu dong freeze khi pause (Rule 10).
-- Khong reference bat ky UI script nao.
-
-**Step 4: `SkillButtonUI.cs`** (TAO MOI — UI Layer)
-- `[RequireComponent(typeof(Button), typeof(Image))]`.
-- `Awake()`: cache `Button` + `Image`, set ready visual. Khong dung `AddListener` — click duoc wire trong Inspector qua Button OnClick UnityEvent.
-- `OnEnable/OnDisable`: subscribe/unsubscribe `EggShowerActivatedEvent` (Rule 07).
-- `public void OnSkillButtonClicked()`: **public** de hien thi trong Inspector UnityEvent dropdown. Neu khong on cooldown, publish `RequestEggShowerEvent` + `ButtonClickEvent`.
-- `HandleEggShowerActivated()`: set `_cooldownDuration` va `_cooldownTimer` tu event data, bat dau cooldown visual.
-- `Update()`: neu on cooldown, giam timer, cap nhat `cooldownOverlay.fillAmount` (radial fill). Het cooldown → restore `readyColor` va `button.interactable = true`.
-- `SetReadyVisual()` / `SetCooldownVisual()` / `UpdateCooldownVisual()` — tach visual logic.
-- Khong reference bat ky gameplay script nao — chi giao tiep qua GameEventBus.
-
-### Ly do giai quyet vi pham Rule
-- **Rule 07 (UI-Gameplay Separation):** UI (`SkillButtonUI`) chi publish event. Gameplay (`EggShowerManager`) chi subscribe va xu ly. Khong co reference cheo giua 2 layer.
-- **Rule 07 (Event-Driven UI):** UI subscribe `EggShowerActivatedEvent` de cap nhat cooldown visual — khong poll.
-- **Rule 07 (Object Pooling):** Eggs spawn qua `ObjectPoolManager.Instance.Get()`. Khong `Instantiate()`.
-- **Rule 03 (Data-Driven):** Tat ca stats doc tu `EggShowerSkillData` SO — zero hardcode. `cooldownTime`, `spawnCount`, `goldPerEgg`, `dropHeight`, `dropDuration` deu tu SO.
-- **Rule 07 (Component-Based):** Moi component < 150 dong, single-responsibility. `EggShowerManager` chi spawn eggs. `SkillButtonUI` chi quan ly button UI. `EggShowerSkillData` chi chua data.
-- **Rule 07 (GC Prevention):** Struct events, khong string concat trong Update, khong LINQ.
-- **Rule 10 (Pause):** Cooldown timer dung `Time.deltaTime` — tu dong freeze khi `Time.timeScale = 0`.
-- **Rule 10 (Scene Cleanup):** Events cleared trong `GameEventBus.Reset()`.
-
-### Files thay doi
-| File | Hanh dong |
-|---|---|
-| `Assets/Scripts/Data/EggShowerSkillData.cs` | TAO MOI — ScriptableObject cau hinh skill |
-| `Assets/Scripts/Gameplay/EggShowerManager.cs` | TAO MOI — Gameplay handler, pool spawn |
-| `Assets/Scripts/UI/SkillButtonUI.cs` | TAO MOI — UI button, cooldown visual |
-| `Assets/Scripts/Core/Events/GameEvents.cs` | SUA — Them RequestEggShowerEvent, EggShowerActivatedEvent |
-| `Assets/Scripts/Core/Events/GameEventBus.cs` | SUA — Them 2 events, 2 Publish, 2 Reset |
-
----
-
-## TO-DO TRONG UNITY EDITOR (SAU C12)
-
-### 1. Tao EggShowerSkillData SO
-- `Assets/Data/Skills/` > Right-click > Create > `HKSV/Data/Skills/Egg Shower Skill`.
-- Dat ten: `Skill_MuaTrungRong.asset`.
-- Cau hinh:
-  - `cooldownTime`: 30 giay (tuy balance)
-  - `spawnCount`: 3
-  - `goldPerEgg`: 25
-  - `resourcePrefab`: keo Dragon Egg prefab (da tao o C11) vao
-  - `dropHeight`: 1.5
-  - `dropDuration`: 0.5
-
-### 2. Tao GameObject "EggShowerManager"
-- Tao empty GameObject trong scene, dat ten `EggShowerManager`.
-- Gan component `EggShowerManager.cs`.
-- Keo `Skill_MuaTrungRong.asset` vao truong `skillData`.
-- Chinh grid bounds (`minX`, `maxX`, `minY`, `maxY`) cho phu hop voi ban do level.
-
-### 3. Tao UI Button "EggShowerButton"
-- Trong Canvas, tao `Button` GameObject, dat ten `EggShowerButton`.
-- Gan component `SkillButtonUI.cs`.
-- Setup UI hierarchy:
-```
-[EggShowerButton]
-  +-- Button (Unity UI)           ← Tu dong (RequireComponent)
-  +-- Image (Unity UI)            ← Gan sprite icon trung rong. Type = Simple.
-  +-- SkillButtonUI.cs            ← Add Component
-  +-- [Child] CooldownOverlay     ← Tao Image con:
-        Image Type = Filled
-        Fill Method = Radial 360
-        Fill Origin = Top
-        Clockwise = true
-        Color = (0, 0, 0, 0.5) ban trong
-        Raycast Target = false
-```
-- Keo child `CooldownOverlay` Image vao truong `cooldownOverlay` tren `SkillButtonUI`.
-- **Wire OnClick trong Inspector:** Trong Button component > OnClick() > bam `+` > keo chinh GameObject nay vao object slot > chon `SkillButtonUI > OnSkillButtonClicked`. Khong dung `AddListener` trong code de tranh goi method 2 lan.
-- Dat button trong HUD layout (canh hero cards).
-
-### 4. Kiem tra PoolConfig
-- Dam bao Dragon Egg prefab da co entry trong `PoolConfig` SO (da lam o C11).
-- Tang `initialSize` len 15-20 neu can (3 eggs/activation + passive generators).
-
-### 5. Script Execution Order
-- Khong can thay doi — `EggShowerManager` khong co dependency ve thu tu voi cac manager khac. Chi can `ObjectPoolManager` chay truoc (da cau hinh o C2).

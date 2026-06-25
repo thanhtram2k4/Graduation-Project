@@ -275,19 +275,99 @@ public struct ResumeRequestedEvent { }
 public struct LevelRestartRequestedEvent { }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DRAFT EVENTS (for Phase 4 / AudioManager)
+// DRAFT EVENTS (Phase 4 — Draft & Shuffle System)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// <summary>Published when a hero card is flipped during drafting.</summary>
+/// <summary>Published when a hero card is flipped during drafting (AudioManager SFX hook).</summary>
 public struct CardFlippedEvent
 {
     public string HeroID;
 }
 
-/// <summary>Published when a hero is accepted into the lineup during drafting.</summary>
+/// <summary>Published when a hero is accepted into the lineup during drafting (AudioManager SFX hook).</summary>
 public struct HeroAcceptedEvent
 {
     public string HeroID;
+}
+
+/// <summary>
+/// Published by LevelIntroUI when the player presses the "Ra trận" button.
+/// Subscriber: LevelStateManager (transitions Intro → Drafting).
+/// </summary>
+public struct DeployRequestedEvent { }
+
+/// <summary>
+/// Published by DraftingUI when the player selects a hero for the draft pool.
+/// Subscriber: LineupManager (adds hero to selected pool).
+/// </summary>
+public struct HeroSelectedForPoolEvent
+{
+    /// <summary>Hero ID of the selected hero card.</summary>
+    public string HeroID;
+}
+
+/// <summary>
+/// Published by DraftingUI when the player deselects a hero from the draft pool.
+/// Subscriber: LineupManager (removes hero from selected pool).
+/// </summary>
+public struct HeroRemovedFromPoolEvent
+{
+    /// <summary>Hero ID of the deselected hero card.</summary>
+    public string HeroID;
+}
+
+/// <summary>
+/// Published by DraftingUI when the player confirms their selected pool.
+/// Subscriber: LevelStateManager (transitions Drafting → Shuffling).
+/// </summary>
+public struct DraftConfirmedEvent
+{
+    /// <summary>Number of heroes in the confirmed pool.</summary>
+    public int PoolSize;
+}
+
+/// <summary>
+/// Published by ShuffleCutsceneUI when the shuffle animation finishes.
+/// Subscriber: LineupManager (enters "awaiting picks" mode).
+/// This does NOT mean the lineup is ready — the player must still pick cards.
+/// </summary>
+public struct ShuffleCompleteEvent { }
+
+/// <summary>
+/// Published by ShuffleCutsceneUI when the player clicks a face-down card.
+/// Subscriber: LineupManager (pops next hero from shuffled deck, publishes reveal).
+/// The CardUIIndex identifies the visual card position — it does NOT determine
+/// which hero is revealed. Randomness comes from the Fisher-Yates shuffle order.
+/// </summary>
+public struct BlindCardClickedEvent
+{
+    /// <summary>Zero-based visual index of the clicked card on the board.</summary>
+    public int CardUIIndex;
+}
+
+/// <summary>
+/// Published by LineupManager after assigning the next shuffled hero to the lineup.
+/// Subscriber: ShuffleCutsceneUI (flips the specific card face-up, shows hero data).
+/// </summary>
+public struct BlindCardRevealedEvent
+{
+    /// <summary>Visual index echoed from the BlindCardClickedEvent.</summary>
+    public int CardUIIndex;
+
+    /// <summary>The hero data revealed at this position.</summary>
+    public HeroCardData RevealedHero;
+}
+
+/// <summary>
+/// Published by LineupManager once exactly maxLineupSize heroes have been
+/// manually picked via BlindCardClickedEvent. This is the gate for
+/// LevelStateManager to transition Shuffling → Preparing.
+/// Subscribers: LevelStateManager, ShuffleCutsceneUI, GameplayHeroSlotUI.
+/// </summary>
+public struct LineupFinalizedEvent
+{
+    /// <summary>Number of heroes in the finalized lineup.</summary>
+    public int LineupSize;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
