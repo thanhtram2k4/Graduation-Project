@@ -18,19 +18,49 @@ MonoBehaviour:
     initialSize: 100
   - poolName: "\u0110\u1EA1n B\u1ED9 \u0110\u1ED9i"
     prefab: {fileID: 3944099320571399198, guid: 335d31a3d505a8444949d598828e3769, type: 3}
-    initialSize: 10000
+    initialSize: 1000
   - poolName: "\u0110\u1ECBch"
     prefab: {fileID: 4430626234946694660, guid: c14291edcbdf06845ae7794636be28cb, type: 3}
     initialSize: 20
   - poolName: "\u0110\u1ECBch \u0111\u1EA1n s\xFAng"
     prefab: {fileID: 4410389585502025660, guid: 9a9eabb43bb24814e869c9ea21a42f59, type: 3}
-    initialSize: 10000
+    initialSize: 1000
   - poolName: "R\u1ED3ng V\xE0ng"
     prefab: {fileID: 1508235813498816142, guid: 36b66b6cff14f93419a88dabf15d04e2, type: 3}
-    initialSize: 100
+    initialSize: 20
   - poolName: DragonEggPool
     prefab: {fileID: 7717568645778232233, guid: 870d1f371ac665b4a92f471996dc0d8a, type: 3}
+    initialSize: 100
+  - poolName: SonTinh
+    prefab: {fileID: 7188780793457382631, guid: 07307a419d686ff4b9bfb5069e23e000, type: 3}
     initialSize: 20
+  - poolName: Rock_ST
+    prefab: {fileID: 1413674557683399451, guid: cbd33984e9518a44fa838281beaee100, type: 3}
+    initialSize: 1000
   - poolName: LaneSweeper
     prefab: {fileID: 879358818025145857, guid: 80a5301696bb5af4f8409fd2dc040980, type: 3}
     initialSize: 5
+  - poolName: WomanVN
+    prefab: {fileID: 8127832348602390216, guid: bb59eb2384f64ae4d8ab669396c94957, type: 3}
+    initialSize: 20
+  - poolName: Plane_WomanVN
+    prefab: {fileID: 5184734401930080406, guid: 87a350bfff8cc224291adea33db2f16f, type: 3}
+    initialSize: 1000
+  - poolName: Tank390
+    prefab: {fileID: 5364638357427038781, guid: 08eda1661508ea94b8e1d1b17ed25be1, type: 3}
+    initialSize: 20
+  - poolName: "\u0110\u1EA1n - Tank390"
+    prefab: {fileID: 3944099320571399198, guid: b4520e2f4786f064492ceb455b269544, type: 3}
+    initialSize: 1000
+  - poolName: "Thu\u1EF7 Tinh"
+    prefab: {fileID: 2476561505087549124, guid: 675d57249256f434799605d89992ab42, type: 3}
+    initialSize: 20
+  - poolName: "S\xF3ng - Thu\u1EF7 Tinh"
+    prefab: {fileID: 8749895859258269742, guid: c35f455768db65d49b241b6ba5b9d038, type: 3}
+    initialSize: 1000
+  - poolName: "R\xF9a"
+    prefab: {fileID: 48420394544148845, guid: bc3c81d41cf0566459fea560e4e5e8d1, type: 3}
+    initialSize: 20
+  - poolName: "Th\xE1nh Gi\xF3ng"
+    prefab: {fileID: 3966552633068677632, guid: 76878577452913b48915e151ae5e257e, type: 3}
+    initialSize: 20

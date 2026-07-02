@@ -33,7 +33,7 @@ MonoBehaviour:
   damageType: 0
   attackRange: 2
   attackCooldown: 1
-  projectileSpeed: 0
+  projectileSpeed: 8
   aoeRadius: 0
   aoeDamage: 0
   aoeDamageType: 1

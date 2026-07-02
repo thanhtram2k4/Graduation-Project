@@ -1,13 +1,22 @@
 fileFormatVersion: 2
-guid: c5e7e4e25b1f8bd438ee7a653756b489
+guid: dd1bb55c69145a445ad76f3924aa17c1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -524217498045398496
-    second: Son Tinh_0
+      213: -1546443605270290197
+    second: Thanh_Giong_0
   - first:
-      213: 5159450632796053983
-    second: Son Tinh_1
+      213: 4492517662380397213
+    second: Thanh_Giong_1
+  - first:
+      213: 3891956197803934504
+    second: Thanh_Giong_2
+  - first:
+      213: 540293420864872955
+    second: Thanh_Giong_3
+  - first:
+      213: -7611704482324739125
+    second: Thanh_Giong_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -103,155 +112,111 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Son Tinh_0
+      name: Thanh_Giong_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1760
-        height: 2404
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 022c5f386fa99b8f0800000000000000
-      internalID: -524217498045398496
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Son Tinh_1
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1760
-        height: 2404
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 6d30b7b2d9a46424689f29ed351af8d5
-      internalID: 5159450632796053983
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Son Tinh_2
-      rect:
-        serializedVersion: 2
-        x: 1200
-        y: 1356
-        width: 560
-        height: 1048
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 805bee7983207a54295d8d0d21c9a916
-      internalID: 86271880
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Son Tinh_3
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 1356
-        width: 639
-        height: 970
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 058d3976b687a4340b067d851c2e1ffd
-      internalID: 1485040514
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Son Tinh_4
-      rect:
-        serializedVersion: 2
-        x: 641
-        y: 0
-        width: 554
-        height: 1098
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 970abdbd249c89e4b8ead68306aed671
-      internalID: 1792941200
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Son Tinh_5
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 644
-        height: 826
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: bcb531f1fcf268949b497131bf5f6798
-      internalID: -527338210
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Son Tinh_6
-      rect:
-        serializedVersion: 2
-        x: 1197
-        y: 0
-        width: 563
-        height: 1110
+        x: 160
+        y: 238
+        width: 1954
+        height: 2651
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 2d43b1639bc2e69409226039de245036
-      internalID: 1373941974
+      spriteID: be0a0b20cbde98ae0800000000000000
+      internalID: -1546443605270290197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thanh_Giong_1
+      rect:
+        serializedVersion: 2
+        x: 2024
+        y: 1546
+        width: 1684
+        height: 1332
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d921a55f201a85e30800000000000000
+      internalID: 4492517662380397213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thanh_Giong_2
+      rect:
+        serializedVersion: 2
+        x: 3484
+        y: 146
+        width: 1377
+        height: 1405
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 823cb7b9a81030630800000000000000
+      internalID: 3891956197803934504
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thanh_Giong_3
+      rect:
+        serializedVersion: 2
+        x: 3725
+        y: 1546
+        width: 1378
+        height: 1339
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf1a121f0028f7700800000000000000
+      internalID: 540293420864872955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thanh_Giong_4
+      rect:
+        serializedVersion: 2
+        x: 1976
+        y: 238
+        width: 1181
+        height: 1306
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bcb09c31a1bcd5690800000000000000
+      internalID: -7611704482324739125
       vertices: []
       indices: 
       edges: []
@@ -260,7 +225,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: f5146942a12d2284b8b397649276c48f
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -268,17 +233,13 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":1760.0,"y":2404.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Son Tinh_0: -524217498045398496
-      Son Tinh_1: 5159450632796053983
-      Son Tinh_2: 86271880
-      Son Tinh_3: 1485040514
-      Son Tinh_4: 1792941200
-      Son Tinh_5: -527338210
-      Son Tinh_6: 1373941974
+      Thanh_Giong_0: -1546443605270290197
+      Thanh_Giong_1: 4492517662380397213
+      Thanh_Giong_2: 3891956197803934504
+      Thanh_Giong_3: 540293420864872955
+      Thanh_Giong_4: -7611704482324739125
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

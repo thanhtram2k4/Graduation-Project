@@ -123,11 +123,12 @@ public class StatusEffectData : ScriptableObject
         effectType == EffectType.Burn || effectType == EffectType.Poison;
 
     /// <summary>
-    /// Returns true if this effect resolves instantly with no duration
-    /// (e.g. Pushback).
+    /// Returns true if this effect resolves instantly with no duration.
+    /// Pushback is excluded — it uses Duration as the slide time for
+    /// smooth displacement via EnemyKnockbackState.
     /// </summary>
     public bool IsInstant =>
-        effectType == EffectType.Pushback || duration == 0f;
+        duration == 0f && effectType != EffectType.Pushback;
 
 #if UNITY_EDITOR
     private void OnValidate()
@@ -139,11 +140,13 @@ public class StatusEffectData : ScriptableObject
                 "but TickInterval is 0 or less. Damage ticks will never fire.",
                 this);
 
-        // Instant effects do not need a duration.
-        if (IsInstant && duration > 0f && effectType == EffectType.Pushback)
+        // Pushback uses Duration as the slide time for smooth displacement.
+        // A duration of 0 defaults to 0.3s at runtime. Values > 2s may feel
+        // sluggish — warn designers.
+        if (effectType == EffectType.Pushback && duration > 2f)
             Debug.LogWarning(
-                $"[StatusEffectData] '{name}': Pushback is an instant effect. " +
-                "The Duration value will be ignored at runtime.",
+                $"[StatusEffectData] '{name}': Pushback Duration is {duration}s. " +
+                "Values above 2s may feel sluggish. Duration controls the slide time.",
                 this);
 
         // Slow intensity should be in [0, 1] — a value > 1 means > 100% reduction.

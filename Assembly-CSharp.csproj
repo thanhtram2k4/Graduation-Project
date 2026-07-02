@@ -102,6 +102,7 @@
     <Compile Include="Assets\Scripts\Data\EnemyUnitData.cs" />
     <Compile Include="Assets\Scripts\UI\SkillButtonUI.cs" />
     <Compile Include="Assets\Scripts\UI\DraftCardSlot.cs" />
+    <Compile Include="Assets\Scripts\AI\States\Enemy\EnemyKnockbackState.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_DigitValidator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_FrameRateCounter.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Components\HealthComponent.cs" />

@@ -12,6 +12,12 @@ public class Projectile : MonoBehaviour
     [SerializeField] private float defaultSpeed = 8f;
     [SerializeField] private float defaultLifetime = 5f;
 
+    [Header("On-Hit Status Effect (optional — Rule 03)")]
+    [Tooltip("If assigned, this effect is applied to the target on hit. " +
+             "For Pushback: Intensity = knockback distance (grid units), " +
+             "Duration = slide time (seconds).")]
+    [SerializeField] private StatusEffectData onHitEffect;
+
     // ── Runtime (set by Initialize) ─────────────────────────────────────────
     private float _speed;
     private float _damage;
@@ -90,6 +96,12 @@ public class Projectile : MonoBehaviour
                 health.TakeDamage(_damage, _damageType);
             }
 
+            // Apply on-hit status effect if configured (Rule 03 — data-driven)
+            if (onHitEffect != null && health != null && !health.IsDead)
+            {
+                ApplyOnHitEffect(other.gameObject);
+            }
+
             // Publish hit event for AudioManager (Rule 08)
             GameEventBus.Publish(new ProjectileHitEvent
             {
@@ -100,6 +112,50 @@ public class Projectile : MonoBehaviour
             // Release to pool — no Destroy (Rule 07)
             ReleaseToPool();
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ON-HIT STATUS EFFECT — Pushback / Stun / etc. (Rule 03, Rule 09)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Applies the configured <see cref="onHitEffect"/> to the target.
+    /// For Pushback: forces the enemy into <see cref="EnemyKnockbackState"/>
+    /// via <see cref="AIComponent.ForceState"/> (Rule 09).
+    /// </summary>
+    private void ApplyOnHitEffect(GameObject target)
+    {
+        AIComponent ai = target.GetComponent<AIComponent>();
+
+        if (onHitEffect.effectType == EffectType.Pushback)
+        {
+            if (ai == null) return;
+
+            // Knockback distance (grid units) and slide duration (seconds)
+            // read from StatusEffectData SO — zero hardcoded values (Rule 03)
+            float distance = onHitEffect.intensity;
+            float duration = onHitEffect.duration > 0f
+                ? onHitEffect.duration
+                : 0.3f; // Defensive fallback only
+
+            ai.ForceState(StateFactory.CreateEnemyKnockbackState(
+                ai.FSM, ai, distance, duration));
+        }
+        else if (onHitEffect.effectType == EffectType.Stun
+              || onHitEffect.effectType == EffectType.Freeze)
+        {
+            if (ai == null) return;
+
+            ai.ForceState(StateFactory.CreateEnemyStunnedState(
+                ai.FSM, ai, onHitEffect.duration));
+        }
+
+        // Publish event for AudioManager SFX (Rule 08)
+        GameEventBus.Publish(new StatusEffectAppliedEvent
+        {
+            EffectData = onHitEffect,
+            TargetUnit = target
+        });
     }
 
     // ─────────────────────────────────────────────────────────────────────────

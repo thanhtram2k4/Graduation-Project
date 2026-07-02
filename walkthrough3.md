@@ -847,3 +847,160 @@ Them **cinematic delay** truoc khi publish `VictoryEvent`:
 | File | Hanh dong |
 |---|---|
 | `Assets/Scripts/Enemies/EnemySpawner.cs` | SUA — Them `victoryDelay` field, them `DelayedVictoryRoutine()` coroutine |
+
+---
+
+## C16. Tsunami Projectile Knockback — Thuy Tinh (HOAN THANH)
+
+### Van de
+Defender unit `Thuy Tinh_0` ban projectile `tsunami_0`, hien tai chi gay damage thong thuong. Can them co che knockback: khi trung enemy, day enemy lui tren truc X (pushback) kem damage nhe. Van de chinh: `MovementComponent.Update()` lien tuc cap nhat vi tri enemy moi frame, se ghi de bat ky displacement nao neu khong tam dung movement.
+
+### Giai phap
+
+**Nguyen tac:** Su dung FSM state moi (`EnemyKnockbackState`) de tam dung movement va thuc hien smooth displacement. Data-driven qua `StatusEffectData` SO — zero hardcode (Rule 03).
+
+#### 1. `EnemyKnockbackState.cs` (TAO MOI — FSM State)
+
+Plain C# class extend `BaseState` (Rule 09):
+
+- **Constructor:** Nhan `AIComponent`, `distance` (grid units), `duration` (seconds).
+- **OnEnter:** `Movement.SetMoving(false)` — tam dung `MovementComponent.Update()`. Cache `_startX` va tinh `_targetX = _startX + distance` (positive X = huong ve spawn, tuc la lui).
+- **OnUpdate:** Lerp vi tri X tu `_startX` den `_targetX` voi ease-out (`1 - (1-t)^2`) de tao cam giac giam toc tu nhien. Y **KHONG BAO GIO** thay doi (Rule 02 lane-locked). Khi `t >= 1` → goi `ResumeFromKnockback()`.
+- **ResumeFromKnockback:** Doc `Owner.PreviousState`, tao fresh instance qua `StateFactory` (Move hoac Attack). Fallback ve `EnemyMoveState` neu previous state la knockback/stunned/die.
+- **Safety:** Guard `_ai.Health.IsDead` moi frame — neu enemy chet giua knockback, FSM tu dong chuyen sang `EnemyDieState` qua `HealthComponent.OnHealthDepleted`.
+- **Duration clamp:** Minimum 0.05s de tranh division-by-zero.
+
+#### 2. `StateFactory.cs` (SUA)
+
+Them factory method:
+```csharp
+public static BaseState CreateEnemyKnockbackState(
+    StateMachine owner, AIComponent ai, float distance, float duration)
+    => new EnemyKnockbackState(owner, ai, distance, duration);
+```
+Tat ca instantiation qua factory — khong `new` truc tiep (Rule 09).
+
+#### 3. `Projectile.cs` (SUA)
+
+Them `[SerializeField] private StatusEffectData onHitEffect` — optional, cau hinh tren tung prefab:
+
+- **OnTriggerEnter2D:** Sau khi `TakeDamage()`, kiem tra `onHitEffect != null && !health.IsDead` → goi `ApplyOnHitEffect()`.
+- **ApplyOnHitEffect():**
+  - Neu `EffectType.Pushback`: lay `AIComponent`, goi `ForceState(CreateEnemyKnockbackState(...))`. Distance va duration doc tu SO.
+  - Neu `EffectType.Stun/Freeze`: goi `ForceState(CreateEnemyStunnedState(...))`.
+  - Publish `StatusEffectAppliedEvent` cho AudioManager (Rule 08).
+- **Thiet ke:** Khong tao `TsunamiProjectile` subclass — them optional field vao base `Projectile` extensible hon. Bat ky projectile nao cung co the apply effect chi bang gan SO trong Inspector.
+
+#### 4. `StatusEffectData.cs` (SUA)
+
+- **`IsInstant` property:** Loai bo `EffectType.Pushback` khoi dieu kien instant — Pushback giờ dung `duration` cho slide time.
+- **`OnValidate`:** Thay warning "duration will be ignored" bang warning khi duration > 2s (co the cam thay cham).
+
+### Tai sao khong tao TsunamiProjectile subclass?
+
+| Approach | Van de |
+|---|---|
+| `TsunamiProjectile : Projectile` | Class explosion. Moi projectile moi can subclass rieng. Override `OnTriggerEnter2D` phuc tap. |
+| **Optional `onHitEffect` field (chon)** | Data-driven. Bat ky projectile nao cung co the apply bat ky effect nao chi bang keo SO vao Inspector. Khong can code moi. |
+
+### Tai sao dung FSM state thay vi Coroutine?
+
+| Approach | Van de |
+|---|---|
+| Coroutine tren Projectile | Projectile bi release ve pool ngay khi hit — coroutine bi cancel. |
+| Coroutine tren Enemy | Vi pham Rule 09 (AI logic phai qua FSM, khong inline). |
+| Truc tiep set Transform | `MovementComponent.Update()` ghi de ngay frame sau. |
+| **EnemyKnockbackState (chon)** | FSM state tam dung movement, xu ly displacement, tu dong resume. Dung pattern da co (EnemyStunnedState). |
+
+### Rule Compliance
+
+| Rule | Tuan thu | Chi tiet |
+|---|---|---|
+| Rule 02 | OK | Y position KHONG BAO GIO thay doi trong knockback. Lane-locked. |
+| Rule 03 | OK | Knockback distance va duration doc tu `StatusEffectData` SO. Zero hardcode. |
+| Rule 07 | OK | Zero allocation trong hot path. Khong LINQ. Struct event (`StatusEffectAppliedEvent`). |
+| Rule 07 | OK | Projectile van release ve pool binh thuong. Knockback state la plain C# class, khong MonoBehaviour. |
+| Rule 08 | OK | `StatusEffectAppliedEvent` publish cho AudioManager SFX. |
+| Rule 09 | OK | `EnemyKnockbackState` extend `BaseState`, plain C# class. Tao qua `StateFactory`. `ForceState()` chi cho external interrupts. Resume previous state khi het duration. |
+| Rule 09 | OK | Cross-ref: `EnemyKnockbackState` chi doc `AIComponent` facade (Movement, Health, transform). Khong reference component khong lien quan. |
+
+### Files thay doi
+
+| File | Hanh dong |
+|---|---|
+| `Assets/Scripts/AI/States/Enemy/EnemyKnockbackState.cs` | TAO MOI — FSM state: smooth pushback displacement, movement lock, auto-resume |
+| `Assets/Scripts/AI/FSM/StateFactory.cs` | SUA — Them `CreateEnemyKnockbackState()` factory method |
+| `Assets/Scripts/Gameplay/Projectile.cs` | SUA — Them optional `onHitEffect` StatusEffectData field, `ApplyOnHitEffect()` method |
+| `Assets/Scripts/Data/StatusEffectData.cs` | SUA — Cap nhat `IsInstant` property, `OnValidate` cho Pushback duration |
+
+---
+
+## TO-DO TRONG UNITY EDITOR (SAU C16)
+
+### 1. Tao StatusEffectData SO cho Tsunami Pushback
+- Project window > Right-click `Assets/Data/` > Create > `HKSV/Data/Status Effect`.
+- Dat ten: `Effect_TsunamiPushback.asset`.
+- Cau hinh:
+  - `effectID`: `TsunamiPushback`
+  - `effectType`: **Pushback**
+  - `displayName`: `Sóng Thần Đẩy Lùi`
+  - `duration`: **0.3** (giay — thoi gian slide. Tang len 0.5 neu muon cham hon)
+  - `tickInterval`: 0 (khong dung)
+  - `intensity`: **1.5** (grid units — khoang cach day lui. Tinh chinh: 1.0 = nhe, 2.0 = manh)
+  - `isStackable`: false
+  - `appliedBySource`: **AllyAttack**
+  - `vfxPrefab`: (optional — keo VFX splash neu co)
+  - `effectIcon`: (optional)
+  - `onApplySfx`: (optional — keo SFX song nuoc neu co)
+  - `onTickSfx`: de trong
+
+### 2. Gan SO vao Tsunami Projectile Prefab
+- Mo prefab `Assets/Prefabs/Projectiles/tsunami_0.prefab`.
+- Chon GameObject goc (co component `Projectile`).
+- Trong Inspector, tim header **"On-Hit Status Effect"**.
+- Keo `Effect_TsunamiPushback.asset` vao truong `On Hit Effect`.
+- **Luu prefab** (Ctrl+S).
+
+### 3. Tinh chinh gia tri (Balance)
+- **Knockback distance (`intensity`):**
+  - 0.5 = rat nhe, chi day lui nua o
+  - 1.0 = vua phai, day lui 1 o
+  - 1.5 = kha manh (khuyen nghi cho Thuy Tinh)
+  - 2.0+ = rat manh, can than voi map boundaries
+- **Slide duration (`duration`):**
+  - 0.2 = nhanh, giong "hit stun"
+  - 0.3 = vua phai (khuyen nghi)
+  - 0.5 = cham, cam giac "nang"
+- **Damage (`Projectile.Initialize`):** Damage cua projectile van duoc set boi `CombatDefenderData` SO cua Thuy Tinh (`baseDamage` field). Knockback la **them vao**, khong thay the damage.
+
+### 4. Kiem tra Prefab Components
+Dam bao `tsunami_0.prefab` co day du:
+```
+[tsunami_0 Prefab]
+  +-- Projectile.cs               ← da co (base class)
+  |     defaultSpeed: 8
+  |     defaultLifetime: 5
+  |     onHitEffect: Effect_TsunamiPushback  ← MOI — keo SO vao day
+  +-- SpriteRenderer              ← da co
+  +-- Collider2D (isTrigger=true) ← da co
+  +-- PooledObject.cs             ← tu dong boi ObjectPoolManager
+```
+
+### 5. Kiem tra Enemy Prefab Components
+Enemy prefab can co cac component sau de knockback hoat dong:
+```
+[Enemy Prefab]
+  +-- Enemy.cs                    ← da co
+  +-- HealthComponent.cs          ← da co
+  +-- MovementComponent.cs        ← da co — SE BI TAM DUNG trong knockback
+  +-- AIComponent.cs              ← da co — ForceState() chuyen sang EnemyKnockbackState
+  +-- Animator                    ← da co
+  +-- Collider2D (isTrigger=true) ← da co — tag "Enemy"
+```
+
+### 6. Test Scenarios
+- **Normal hit:** Ban tsunami vao enemy dang di → enemy truot lui 1.5 o trong 0.3s, roi tiep tuc di.
+- **Hit enemy dang tan cong:** Enemy truot lui, sau khi knockback het se quay lai MoveState (vi hero khong con trong range).
+- **Hit enemy sap chet:** Damage kill enemy → knockback KHONG apply (guard `!health.IsDead`).
+- **Hit nhieu enemy lien tuc:** Moi hit tao `EnemyKnockbackState` moi, reset slide tu dau.
+- **Enemy bi day ra ngoai map:** Khong co boundary clamp hien tai — neu can, them `Mathf.Clamp` vao `EnemyKnockbackState.OnUpdate` cho `_targetX`.

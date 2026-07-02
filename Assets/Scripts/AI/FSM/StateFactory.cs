@@ -33,4 +33,9 @@ public static class StateFactory
     /// <summary>Creates a new enemy stunned state instance.</summary>
     public static BaseState CreateEnemyStunnedState(StateMachine owner, AIComponent ai, float duration)
         => new EnemyStunnedState(owner, ai, duration);
+
+    /// <summary>Creates a new enemy knockback state instance.</summary>
+    public static BaseState CreateEnemyKnockbackState(StateMachine owner, AIComponent ai,
+                                                       float distance, float duration)
+        => new EnemyKnockbackState(owner, ai, distance, duration);
 }

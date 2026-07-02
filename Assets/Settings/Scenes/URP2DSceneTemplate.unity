@@ -3167,6 +3167,7 @@ MonoBehaviour:
   - {fileID: 663353777}
   - {fileID: 1554947986}
   - {fileID: 2082214945}
+  victoryDelay: 3.5
 --- !u!4 &967097443
 Transform:
   m_ObjectHideFlags: 0

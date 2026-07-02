@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: ed815d5503ec1a648b1404d6639a1e1c
+guid: 3723cb0522e25db4aa1b8dab530853ed
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8162836234549939263
-    second: Tank 390_0
+      213: 1761668507884123640
+    second: "Thu\u1EF7 Tinh_0"
+  - first:
+      213: -4490424282461255529
+    second: "Thu\u1EF7 Tinh_1"
+  - first:
+      213: 3294103673026028081
+    second: "Thu\u1EF7 Tinh_2"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +106,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Tank 390_0
+      name: "Thu\u1EF7 Tinh_0"
       rect:
         serializedVersion: 2
-        x: 108
-        y: 783
-        width: 871
-        height: 406
+        x: 0
+        y: 1454
+        width: 1952
+        height: 754
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,20 +121,64 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1c3b6f771b7c7be80800000000000000
-      internalID: -8162836234549939263
+      spriteID: 8f5fc689c24b27810800000000000000
+      internalID: 1761668507884123640
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Tank 390_1
+      name: "Thu\u1EF7 Tinh_1"
       rect:
         serializedVersion: 2
-        x: 979
-        y: 783
-        width: 857
-        height: 470
+        x: 0
+        y: 729
+        width: 1952
+        height: 660
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 798cb1908eecea1c0800000000000000
+      internalID: -4490424282461255529
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Thu\u1EF7 Tinh_2"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1952
+        height: 708
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 132a60476d107bd20800000000000000
+      internalID: 3294103673026028081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Thu\u1EF7 Tinh_3"
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 1451
+        width: 622
+        height: 757
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,20 +187,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6c2b23b5951c3114481e1d3e3bf96634
-      internalID: -511255408
+      spriteID: 3b772a8c73a4eed4aa6b87f2d03ade20
+      internalID: -1711673073
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Tank 390_2
+      name: "Thu\u1EF7 Tinh_4"
       rect:
         serializedVersion: 2
-        x: 1830
-        y: 792
-        width: 855
-        height: 540
+        x: 668
+        y: 1454
+        width: 620
+        height: 754
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -159,20 +209,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f2f84b4e0b7737e4d9df08ec131439fe
-      internalID: 313949971
+      spriteID: 0cf92561dc6472a40ad4daf8e8ab7fe7
+      internalID: -254551557
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Tank 390_3
+      name: "Thu\u1EF7 Tinh_5"
       rect:
         serializedVersion: 2
-        x: 103
-        y: 165
-        width: 881
-        height: 508
+        x: 1285
+        y: 1457
+        width: 631
+        height: 751
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -181,20 +231,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d841bfab186db574f9a9d026b6e6a4ad
-      internalID: -514353088
+      spriteID: c818728fe48968741aa2347739d5d0b5
+      internalID: 538019612
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Tank 390_4
+      name: "Thu\u1EF7 Tinh_6"
       rect:
         serializedVersion: 2
-        x: 393
-        y: 666
-        width: 36
-        height: 29
+        x: 0
+        y: 730
+        width: 1119
+        height: 660
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -203,20 +253,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 43ea77a81b2c4c64a82090256b8d315e
-      internalID: -670908567
+      spriteID: 756c41fae53468344bcadc5fae593eca
+      internalID: 1534426923
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Tank 390_5
+      name: "Thu\u1EF7 Tinh_7"
       rect:
         serializedVersion: 2
-        x: 1379
-        y: 591
-        width: 26
-        height: 20
+        x: 0
+        y: 3
+        width: 753
+        height: 686
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -225,74 +275,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 23f695a8a9196664184932a91f30f6ae
-      internalID: 88037740
+      spriteID: be382e8c0ff35ae469836c9fb27dce21
+      internalID: -25764118
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Tank 390_6
+      name: "Thu\u1EF7 Tinh_8"
       rect:
         serializedVersion: 2
-        x: 1421
-        y: 491
-        width: 142
-        height: 133
+        x: 1346
+        y: 0
+        width: 606
+        height: 706
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 439e5fb78a9c314478031e7046f094cb
-      internalID: 704037051
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Tank 390_7
-      rect:
-        serializedVersion: 2
-        x: 982
-        y: 162
-        width: 891
-        height: 460
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: e2e4a1797fd2de94bb7e7c69ea09cc2b
-      internalID: -1144264528
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Tank 390_8
-      rect:
-        serializedVersion: 2
-        x: 1809
-        y: 163
-        width: 896
-        height: 409
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: e9c26c1b0fa9d3f46b68c2955c1bd6ea
-      internalID: 1513351661
+      spriteID: c8bd88d1cb97288439b9a65058e5b109
+      internalID: -1223506670
       vertices: []
       indices: 
       edges: []
@@ -301,7 +307,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 00f0ec0223ed4724193b6072063d452d
+    spriteID: 50b189cf71e7d13408c9953a1c422dd3
     internalID: 0
     vertices: []
     indices: 
@@ -310,20 +316,18 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries:
-      - key: SpriteEditor.SliceOnImport
-        value: False
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Tank 390_0: -8162836234549939263
-      Tank 390_1: -511255408
-      Tank 390_2: 313949971
-      Tank 390_3: -514353088
-      Tank 390_4: -670908567
-      Tank 390_5: 88037740
-      Tank 390_6: 704037051
-      Tank 390_7: -1144264528
-      Tank 390_8: 1513351661
+      "Thu\u1EF7 Tinh_0": 1761668507884123640
+      "Thu\u1EF7 Tinh_1": -4490424282461255529
+      "Thu\u1EF7 Tinh_2": 3294103673026028081
+      "Thu\u1EF7 Tinh_3": -1711673073
+      "Thu\u1EF7 Tinh_4": -254551557
+      "Thu\u1EF7 Tinh_5": 538019612
+      "Thu\u1EF7 Tinh_6": 1534426923
+      "Thu\u1EF7 Tinh_7": -25764118
+      "Thu\u1EF7 Tinh_8": -1223506670
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
