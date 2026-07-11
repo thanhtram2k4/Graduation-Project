@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: "C\xF4 g\xE1i Vi\u1EC7t Nam"
   faction: 0
   category: 1
-  maxHealth: 800
+  maxHealth: 150
   armor: 0
   shieldHP: 0
   magicResistance: 0
@@ -26,10 +26,10 @@ MonoBehaviour:
   unitSprite: {fileID: 7344433502356277743, guid: 4d0377c943b6eac4f9866218f15ed350, type: 3}
   portraitSprite: {fileID: 7344433502356277743, guid: 4d0377c943b6eac4f9866218f15ed350, type: 3}
   unitPrefab: {fileID: 8127832348602390216, guid: bb59eb2384f64ae4d8ab669396c94957, type: 3}
-  placementCost: 100
+  placementCost: 50
   sellRefundRate: 0.6
   upgradeCost: 0
-  baseDamage: 10
+  baseDamage: 15
   damageType: 0
   attackRange: 10
   attackCooldown: 1

@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: "B\u1ED9 binh"
   faction: 1
   category: 1
-  maxHealth: 600
+  maxHealth: 300
   armor: 0
   shieldHP: 0
   magicResistance: 0
@@ -28,10 +28,10 @@ MonoBehaviour:
   unitPrefab: {fileID: 4430626234946694660, guid: c14291edcbdf06845ae7794636be28cb, type: 3}
   baseDamage: 50
   damageType: 0
-  attackRange: 9
-  attackCooldown: 0.5
-  projectileSpeed: 2
-  moveSpeed: 0.2
-  detectionRadius: 9
+  attackRange: 8
+  attackCooldown: 1
+  projectileSpeed: 1
+  moveSpeed: 0.3
+  detectionRadius: 8
   killReward: 10
   baseDamageOnReach: 1

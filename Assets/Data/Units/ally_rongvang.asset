@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: "R\u1ED3ng V\xE0ng \u0110\u1EA5t Vi\u1EC7t"
   faction: 0
   category: 2
-  maxHealth: 800
+  maxHealth: 200
   armor: 0
   shieldHP: 0
   magicResistance: 0

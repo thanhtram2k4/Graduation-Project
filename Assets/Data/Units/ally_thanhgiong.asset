@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: "Th\xE1nh Gi\xF3ng"
   faction: 0
   category: 0
-  maxHealth: 800
+  maxHealth: 400
   armor: 0
   shieldHP: 0
   magicResistance: 0
@@ -26,15 +26,15 @@ MonoBehaviour:
   unitSprite: {fileID: -1546443605270290197, guid: cb810832522e0d34a9dbf9ec805ed824, type: 3}
   portraitSprite: {fileID: -1546443605270290197, guid: cb810832522e0d34a9dbf9ec805ed824, type: 3}
   unitPrefab: {fileID: 3966552633068677632, guid: 76878577452913b48915e151ae5e257e, type: 3}
-  placementCost: 150
+  placementCost: 200
   sellRefundRate: 0.6
   upgradeCost: 0
-  baseDamage: 10
-  damageType: 1
-  attackRange: 3
+  baseDamage: 35
+  damageType: 0
+  attackRange: 2
   attackCooldown: 1
   projectileSpeed: 0
-  aoeRadius: 0
-  aoeDamage: 0
+  aoeRadius: 2
+  aoeDamage: 20
   aoeDamageType: 1
-  detectionRadius: 4
+  detectionRadius: 2

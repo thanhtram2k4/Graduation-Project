@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbb4df94e5a55d64ab78b56ec3baa0b5, type: 3}
+  m_Name: Q10
+  m_EditorClassIdentifier: Assembly-CSharp::HistoricalQuestionData
+  questionID: Q10
+  questionText: According to the legend of "Children of the Dragon and the Immortal,"
+    how many of Lac Long Quan's children did he lead down to the sea?
+  answers:
+  - 40
+  - 50
+  - 60
+  - 100
+  correctAnswerIndex: 0
+  answerFeedbacks:
+  - Wrong! Lac Long Quan and Au Co gave birth to a hundred eggs, which hatched into
+    a hundred children.
+  - Exactly! Lac Long Quan led 50 children down to the sea, Au Co led 50 children
+    up to the mountains, and they divided the land between themselves to rule and
+    protect the country.
+  - Wrong! This number is inaccurate in the ancient Vietnamese legend of boundary
+    demarcation.
+  - 'Wrong! One hundred eggs hatched into one hundred chicks, but they were divided
+    in half: 50 followed their father to the sea, and 50 followed their mother to
+    the mountains.'
+  difficultyTier: 1

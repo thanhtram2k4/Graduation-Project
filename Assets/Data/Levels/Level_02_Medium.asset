@@ -39,7 +39,7 @@ MonoBehaviour:
   waves:
   - waveIndex: 0
     delayBeforeWave: 3.5
-    spawnInterval: 3
+    spawnInterval: 40
     spawnEntries:
     - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
       laneIndex: 1
@@ -47,15 +47,15 @@ MonoBehaviour:
       count: 2
     - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
       laneIndex: 2
-      spawnDelay: 0
+      spawnDelay: 10
       count: 2
     - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
       laneIndex: 3
-      spawnDelay: 0
+      spawnDelay: 20
       count: 2
   - waveIndex: 1
     delayBeforeWave: 4
-    spawnInterval: 2
+    spawnInterval: 40
     spawnEntries:
     - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
       laneIndex: 1
@@ -63,11 +63,11 @@ MonoBehaviour:
       count: 3
     - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
       laneIndex: 2
-      spawnDelay: 0
+      spawnDelay: 10
       count: 3
     - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
       laneIndex: 3
-      spawnDelay: 0
+      spawnDelay: 20
       count: 3
   hasLaneSweepers: 1
   laneSweeperPrefab: {fileID: 879358818025145857, guid: 80a5301696bb5af4f8409fd2dc040980, type: 3}

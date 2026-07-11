@@ -381,3 +381,57 @@ public enum VietnameseDynasty
     /// <summary>Thần Thoại — Mythological / folkloric characters not tied to a historical dynasty.</summary>
     ThanThoai
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ÔNG BỤT (FAIRY GOD-GRANDFATHER) Q&A SYSTEM ENUMS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Sequential phases of the Ông Bụt trivia session UI flow.
+/// Managed by <see cref="OngButSessionManager"/> as a state machine.
+/// </summary>
+public enum OngButPhase
+{
+    /// <summary>System not active. Default state.</summary>
+    Inactive,
+    /// <summary>Ông Bụt introduction popup with rules explanation.</summary>
+    Intro,
+    /// <summary>Showing trivia questions (sub-states managed internally).</summary>
+    Questioning,
+    /// <summary>Score summary and skill gallery for selection.</summary>
+    Result,
+    /// <summary>Confirmation popup after skill selection.</summary>
+    Success,
+    /// <summary>UI closed, granted skill icon active on HUD.</summary>
+    SkillReady
+}
+
+/// <summary>
+/// Effect types for Ông Bụt reward skills. Determines which execution
+/// branch runs in <see cref="OngButSkillExecutor"/>.
+/// Skill names use Vietnamese terms (Rule 11).
+/// </summary>
+public enum OngButSkillEffectType
+{
+    /// <summary>Hồi Sinh Anh Hùng — Revive a fallen hero at full HP.</summary>
+    HeroRevive,
+    /// <summary>Mưa Tên Thần — Deal damage to all enemies in an area.</summary>
+    ArrowRain,
+    /// <summary>Phúc Lộc Ông Bụt — Grant bonus Gold instantly.</summary>
+    GoldBlessing,
+    /// <summary>Hồi Máu Toàn Quân — Heal all deployed troops.</summary>
+    HealAllTroops,
+    /// <summary>Đóng Băng Chiến Trường — Freeze all enemies temporarily.</summary>
+    FreezeAllEnemies
+}
+
+/// <summary>
+/// Targeting mode for Ông Bụt reward skills when activated from the HUD.
+/// </summary>
+public enum OngButTargetingMode
+{
+    /// <summary>Skill executes immediately with no player targeting input.</summary>
+    AutoExecute,
+    /// <summary>Player taps a map position to place the AoE center.</summary>
+    PointAoE
+}

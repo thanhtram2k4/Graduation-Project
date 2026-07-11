@@ -15,8 +15,8 @@ MonoBehaviour:
   unitID: ally_tank390
   displayName: "Xe t\u0103ng 390"
   faction: 0
-  category: 0
-  maxHealth: 900
+  category: 1
+  maxHealth: 350
   armor: 0
   shieldHP: 0
   magicResistance: 0
@@ -26,15 +26,15 @@ MonoBehaviour:
   unitSprite: {fileID: 7482957942664187643, guid: 843e7365cf85fc44ab2e3e1ac8354051, type: 3}
   portraitSprite: {fileID: 7482957942664187643, guid: 843e7365cf85fc44ab2e3e1ac8354051, type: 3}
   unitPrefab: {fileID: 5364638357427038781, guid: 08eda1661508ea94b8e1d1b17ed25be1, type: 3}
-  placementCost: 125
+  placementCost: 200
   sellRefundRate: 0.6
   upgradeCost: 0
-  baseDamage: 10
+  baseDamage: 35
   damageType: 0
-  attackRange: 2
+  attackRange: 10
   attackCooldown: 1
   projectileSpeed: 8
   aoeRadius: 0
   aoeDamage: 0
   aoeDamageType: 1
-  detectionRadius: 3
+  detectionRadius: 10

@@ -18,7 +18,7 @@ MonoBehaviour:
   category: 4
   maxHealth: 1000
   armor: 5
-  shieldHP: 1000
+  shieldHP: 5
   magicResistance: 0
   upgradeTarget: {fileID: 11400000}
   unlockCondition: 0
@@ -34,4 +34,7 @@ MonoBehaviour:
   attackRange: 0.1
   attackCooldown: 0.1
   projectileSpeed: 0
+  aoeRadius: 0
+  aoeDamage: 0
+  aoeDamageType: 1
   detectionRadius: 1

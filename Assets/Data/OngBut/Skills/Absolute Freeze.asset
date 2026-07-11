@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94588cfc28040fc4982badb104d6b936, type: 3}
+  m_Name: Absolute Freeze
+  m_EditorClassIdentifier: Assembly-CSharp::OngButSkillData
+  skillID: Absolute Freeze
+  skillName: Absolute Freeze
+  skillDescription: Instantly chills the battlefield, freezing all active enemies
+    in their tracks for exactly 5 seconds.
+  skillIcon: {fileID: 0}
+  correctAnswerCost: 2
+  effectType: 4
+  effectValue: 100
+  effectRadius: 0
+  targetingMode: 0
+  vfxPrefab: {fileID: 0}
+  sfxClip: {fileID: 0}
+  hudTooltip: 

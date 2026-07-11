@@ -82,7 +82,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 20
   m_MaskInteraction: 0
   m_Sprite: {fileID: 3874537669422553054, guid: d520e40685968ef4890cc806c1cdceb6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -181,3 +181,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
   defaultSpeed: 8
   defaultLifetime: 5
+  onHitEffect: {fileID: 0}

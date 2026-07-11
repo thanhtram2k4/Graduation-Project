@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: "Thu\u1EF7 Tinh"
   faction: 0
   category: 1
-  maxHealth: 800
+  maxHealth: 300
   armor: 0
   shieldHP: 0
   magicResistance: 0
@@ -26,10 +26,10 @@ MonoBehaviour:
   unitSprite: {fileID: -5079000807043921801, guid: 41f05ea2f26b7e64aac3e0f528fd695f, type: 3}
   portraitSprite: {fileID: -5079000807043921801, guid: 41f05ea2f26b7e64aac3e0f528fd695f, type: 3}
   unitPrefab: {fileID: 2476561505087549124, guid: 675d57249256f434799605d89992ab42, type: 3}
-  placementCost: 100
+  placementCost: 175
   sellRefundRate: 0.6
   upgradeCost: 0
-  baseDamage: 10
+  baseDamage: 15
   damageType: 0
   attackRange: 10
   attackCooldown: 1

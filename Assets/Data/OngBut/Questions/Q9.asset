@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbb4df94e5a55d64ab78b56ec3baa0b5, type: 3}
+  m_Name: Q9
+  m_EditorClassIdentifier: Assembly-CSharp::HistoricalQuestionData
+  questionID: Q9
+  questionText: In which region did the traditional Vietnamese water puppetry art
+    originate?
+  answers:
+  - Red River Delta
+  - Central Highlands
+  - Central Coastal Region
+  - Mekong Delta
+  correctAnswerIndex: 0
+  answerFeedbacks:
+  - Exactly! Water puppetry has been associated with the rice-farming agricultural
+    culture of the Red River Delta inhabitants since the 11th century.
+  - Wrong! The Central Highlands is famous for its Gong Culture Space and its heroic
+    epic realms.
+  - "Wrong! This region is famous for B\xE0i Ch\xF2i, H\xE1t B\u1ED9i, and Hue royal
+    court music."
+  - Wrong! This is the cradle of Southern Vietnamese folk music and singing.
+  difficultyTier: 1

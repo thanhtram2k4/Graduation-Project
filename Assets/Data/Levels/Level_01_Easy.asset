@@ -31,7 +31,7 @@ MonoBehaviour:
   waves:
   - waveIndex: 0
     delayBeforeWave: 3.5
-    spawnInterval: 3
+    spawnInterval: 30
     spawnEntries:
     - enemyData: {fileID: 11400000, guid: b72127ac2badde946828a7d5a74f1d36, type: 2}
       laneIndex: 2

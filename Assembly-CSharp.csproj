@@ -65,7 +65,9 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
     <Compile Include="Assets\Scripts\Gameplay\EnemyProjectile.cs" />
     <Compile Include="Assets\Scripts\Gameplay\LaneSweeper.cs" />
+    <Compile Include="Assets\Scripts\UI\OngButIntroPanelUI.cs" />
     <Compile Include="Assets\Scripts\Core\Pooling\PoolConfig.cs" />
+    <Compile Include="Assets\Scripts\Data\OngButSessionConfig.cs" />
     <Compile Include="Assets\Scripts\UI\HeroDragHandler.cs" />
     <Compile Include="Assets\Scripts\Data\CombatDefenderData.cs" />
     <Compile Include="Assets\Scripts\AI\FSM\AIComponent.cs" />
@@ -75,6 +77,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_ExampleScript_01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
+    <Compile Include="Assets\Scripts\Core\OngButSessionManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexZoom.cs" />
@@ -92,6 +95,7 @@
     <Compile Include="Assets\Scripts\TerrainFloors\TerrainCell.cs" />
     <Compile Include="Assets\Scripts\Data\DefenderUnitData.cs" />
     <Compile Include="Assets\Scripts\AI\FSM\BaseState.cs" />
+    <Compile Include="Assets\Scripts\UI\OngButSuccessPanelUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeA.cs" />
     <Compile Include="Assets\Scripts\Gameplay\BaseHealthManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01_UGUI.cs" />
@@ -109,9 +113,11 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshSpawner.cs" />
     <Compile Include="Assets\Scripts\Enemies\Enemy.cs" />
+    <Compile Include="Assets\Scripts\UI\OngButSkillSlotUI.cs" />
     <Compile Include="Assets\Scripts\AI\FSM\StateFactory.cs" />
     <Compile Include="Assets\Scripts\UI\LevelIntroUI.cs" />
     <Compile Include="Assets\Scripts\Data\GameEnums.cs" />
+    <Compile Include="Assets\Scripts\UI\OngButPagodaButtonUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\CameraController.cs" />
     <Compile Include="Assets\Scripts\AI\States\Enemy\EnemyAttackState.cs" />
     <Compile Include="Assets\Scripts\Data\LevelConfig.cs" />
@@ -121,6 +127,7 @@
     <Compile Include="Assets\Scripts\Core\Level\CampaignManager.cs" />
     <Compile Include="Assets\Scripts\AI\FSM\StateMachine.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Components\ResourcePickup.cs" />
+    <Compile Include="Assets\Scripts\Data\HistoricalQuestionData.cs" />
     <Compile Include="Assets\Scripts\AI\States\Enemy\EnemyDieState.cs" />
     <Compile Include="Assets\Scripts\Gameplay\EggShowerManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
@@ -128,6 +135,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ObjectSpin.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_PhoneNumberValidator.cs" />
     <Compile Include="Assets\Scripts\Data\ResourceDefenderData.cs" />
+    <Compile Include="Assets\Scripts\Core\OngButSkillExecutor.cs" />
     <Compile Include="Assets\Scripts\Core\GameManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextConsoleSimulator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TeleType.cs" />
@@ -136,16 +144,22 @@
     <Compile Include="Assets\Scripts\UI\LevelStateUI.cs" />
     <Compile Include="Assets\Scripts\Heroes\Hero.cs" />
     <Compile Include="Assets\Scripts\Enemies\EnemySpawner.cs" />
+    <Compile Include="Assets\Scripts\UI\OngButQnAPanelUI.cs" />
     <Compile Include="Assets\Scripts\AI\States\Enemy\EnemyStunnedState.cs" />
     <Compile Include="Assets\Scripts\TerrainFloors\TerrainGrid.cs" />
     <Compile Include="Assets\Scripts\Core\Pooling\PooledObject.cs" />
     <Compile Include="Assets\Scripts\Heroes\Shooter.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshProFloatingText.cs" />
     <Compile Include="Assets\Scripts\UI\ShuffleCutsceneUI.cs" />
+    <Compile Include="Assets\Scripts\UI\OngButResultPanelUI.cs" />
     <Compile Include="Assets\Scripts\Data\ActiveSkillData.cs" />
     <Compile Include="Assets\Scripts\Core\Level\LevelStateManager.cs" />
+    <Compile Include="Assets\Scripts\Data\OngButSkillData.cs" />
     <Compile Include="Assets\Scripts\UI\GameOutcomeUI.cs" />
+    <Compile Include="Assets\Scripts\UI\OngButUIController.cs" />
     <Compile Include="Assets\Scripts\UI\DraftingUI.cs" />
+    <Compile Include="Assets\Scripts\Data\QuestionBankData.cs" />
+    <Compile Include="Assets\Scripts\UI\OngButSkillHUDButtonUI.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

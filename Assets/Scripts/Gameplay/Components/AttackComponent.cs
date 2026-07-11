@@ -395,4 +395,79 @@ public class AttackComponent : MonoBehaviour
     {
         DealHybridMeleeDamage(MeleeTarget);
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // SPLIT DAMAGE — Two-Beat Animation Support (e.g., Thánh Gióng)
+    //
+    // For heroes whose attack animation has two distinct visual beats that
+    // must deal damage at separate frames:
+    //   Beat 1: AnimEvent_DealAoEDamageOnly   → Iron Horse fire breath (AoE)
+    //   Beat 2: AnimEvent_DealBaseMeleeDamageOnly → Bamboo cane swing (single)
+    //
+    // The existing AnimEvent_DealHybridDamage remains for 1-beat hybrid heroes.
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Applies ONLY the AoE blast around <paramref name="center"/>'s position
+    /// using the SO's <c>aoeDamage</c> / <c>aoeDamageType</c>. Unlike
+    /// <see cref="DealHybridMeleeDamage"/>, this does NOT skip
+    /// <paramref name="center"/> — in a two-beat animation, the AoE beat and
+    /// the melee beat are separate events, so the primary target legitimately
+    /// takes both hits.
+    ///
+    /// <para><b>Zero-alloc (Rule 07 §1.2):</b> Same
+    /// <see cref="Physics2D.OverlapCircle"/> + pre-allocated buffer pattern as
+    /// <see cref="DealHybridMeleeDamage"/>.</para>
+    /// </summary>
+    /// <param name="center">The unit whose position anchors the AoE blast.</param>
+    public void DealAoEDamageOnly(HealthComponent center)
+    {
+        if (IsRanged)
+        {
+            Debug.LogError($"[AttackComponent] '{name}' DealAoEDamageOnly refused — unit is " +
+                           $"classified ranged (data projectileSpeed>0={IsRangedByData}, " +
+                           $"prefab projectilePrefab!=null={HasProjectilePrefab}). " +
+                           "Ranged damage MUST come from Projectile.OnTriggerEnter2D.", this);
+            return;
+        }
+
+        if (center == null || center.IsDead) return;
+        if (_aoeRadius <= 0f || _aoeDamage <= 0f) return;
+
+        Vector2 blastOrigin = center.transform.position;
+        int hitCount = Physics2D.OverlapCircle(
+            blastOrigin, _aoeRadius, _enemyContactFilter, _aoeHitBuffer);
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider2D hit = _aoeHitBuffer[i];
+            if (hit == null) continue;
+
+            HealthComponent hp = hit.GetComponent<HealthComponent>();
+            if (hp == null || hp.IsDead) continue;
+
+            hp.TakeDamage(_aoeDamage, _aoeDamageType);
+        }
+    }
+
+    /// <summary>
+    /// Animation Event callback — AoE damage ONLY (no melee strike).
+    /// For two-beat animations: place this at the fire-breath frame (Beat 1).
+    /// Resolves <see cref="MeleeTarget"/> as the AoE center.
+    /// </summary>
+    public void AnimEvent_DealAoEDamageOnly()
+    {
+        DealAoEDamageOnly(MeleeTarget);
+    }
+
+    /// <summary>
+    /// Animation Event callback — single-target base melee damage ONLY (no AoE).
+    /// For two-beat animations: place this at the bamboo-swing frame (Beat 2).
+    /// Functionally identical to <see cref="AnimEvent_DealMeleeDamage"/> but
+    /// named explicitly for two-beat Animator timeline readability.
+    /// </summary>
+    public void AnimEvent_DealBaseMeleeDamageOnly()
+    {
+        DealMeleeDamage(MeleeTarget);
+    }
 }

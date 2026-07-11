@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbb4df94e5a55d64ab78b56ec3baa0b5, type: 3}
+  m_Name: Q8
+  m_EditorClassIdentifier: Assembly-CSharp::HistoricalQuestionData
+  questionID: Q8
+  questionText: Which king returned the magic sword to the Golden Turtle at Ta Vong
+    Lake (Ho Guom Lake)?
+  answers:
+  - Le Loi
+  - Nguyen Hue
+  - Tran Nhan Tong
+  - Ly Cong Uan
+  correctAnswerIndex: 0
+  answerFeedbacks:
+  - Exactly! After driving out the Ming army, King Le Thai To (Le Loi) returned the
+    Thuan Thien sword to the Golden Turtle, and from then on the lake was named Hoan
+    Kiem Lake.
+  - Wrong! King Quang Trung (Nguyen Hue) was a hero who, wearing simple clothes and
+    carrying a red banner, decisively defeated 290,000 Qing troops.
+  - Wrong! Tran Nhan Tong was a wise king of the Tran dynasty, the founder of the
+    Truc Lam Yen Tu Zen sect.
+  - Wrong! Ly Cong Uan (Ly Thai To) was the person who issued the decree to move
+    the capital from Hoa Lu to Thang Long in 1010.
+  difficultyTier: 1

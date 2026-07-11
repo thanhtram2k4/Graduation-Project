@@ -178,6 +178,67 @@ public static class GameEventBus
     public static event Action<LaneSweeperTriggeredEvent> OnLaneSweeperTriggered;
 
     // ─────────────────────────────────────────────────────────────────────────
+    // ÔNG BỤT (FAIRY GOD-GRANDFATHER) Q&A SYSTEM
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>Raised when the player clicks the Pagoda HUD button.</summary>
+    public static event Action<PagodaActivatedEvent> OnPagodaActivated;
+
+    /// <summary>Raised when the Ông Bụt UI phase changes.</summary>
+    public static event Action<OngButPhaseChangedEvent> OnOngButPhaseChanged;
+
+    /// <summary>Raised when a trivia question is ready to display.</summary>
+    public static event Action<OngButQuestionReadyEvent> OnOngButQuestionReady;
+
+    /// <summary>Raised by UI when the player selects an answer.</summary>
+    public static event Action<OngButAnswerSubmittedEvent> OnOngButAnswerSubmitted;
+
+    /// <summary>Raised after evaluating an answer (correct/wrong + explanation).</summary>
+    public static event Action<OngButAnswerResultEvent> OnOngButAnswerResult;
+
+    /// <summary>Raised by UI when "Understood" is clicked in the Intro.</summary>
+    public static event Action<OngButIntroAcknowledgedEvent> OnOngButIntroAcknowledged;
+
+    /// <summary>Raised by UI when "Next" is clicked after answer feedback.</summary>
+    public static event Action<OngButNextQuestionRequestedEvent> OnOngButNextQuestionRequested;
+
+    /// <summary>Raised when the Q&A session completes with final score.</summary>
+    public static event Action<OngButQuizCompletedEvent> OnOngButQuizCompleted;
+
+    /// <summary>Raised by UI when a skill is selected in the gallery.</summary>
+    public static event Action<OngButSkillSelectedEvent> OnOngButSkillSelected;
+
+    /// <summary>Raised after validating a skill selection.</summary>
+    public static event Action<OngButSkillSelectionConfirmedEvent> OnOngButSkillSelectionConfirmed;
+
+    /// <summary>Raised by UI when "Confirm" is clicked in the gallery.</summary>
+    public static event Action<OngButSkillConfirmedEvent> OnOngButSkillConfirmed;
+
+    /// <summary>Raised by UI when "Done" is clicked in the Success popup.</summary>
+    public static event Action<OngButSessionDoneEvent> OnOngButSessionDone;
+
+    /// <summary>Raised when a skill is granted to the player.</summary>
+    public static event Action<OngButSkillGrantedEvent> OnOngButSkillGranted;
+
+    /// <summary>Raised when the granted skill is executed from the HUD.</summary>
+    public static event Action<OngButSkillExecutedEvent> OnOngButSkillExecuted;
+
+    /// <summary>Raised by UI when "Return" is clicked with 0 score.</summary>
+    public static event Action<OngButReturnRequestedEvent> OnOngButReturnRequested;
+
+    /// <summary>Raised by UI when the Ông Bụt skill HUD button is clicked.</summary>
+    public static event Action<OngButSkillHUDActivatedEvent> OnOngButSkillHUDActivated;
+
+    /// <summary>Raised with intro display data for the UI.</summary>
+    public static event Action<OngButIntroDataEvent> OnOngButIntroData;
+
+    /// <summary>Raised with result display data for the UI.</summary>
+    public static event Action<OngButResultDataEvent> OnOngButResultData;
+
+    /// <summary>Raised with success display data for the UI.</summary>
+    public static event Action<OngButSuccessDataEvent> OnOngButSuccessData;
+
+    // ─────────────────────────────────────────────────────────────────────────
     // UI
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -249,6 +310,27 @@ public static class GameEventBus
     public static void Publish(BlindCardRevealedEvent evt) => OnBlindCardRevealed?.Invoke(evt);
     public static void Publish(LineupFinalizedEvent evt) => OnLineupFinalized?.Invoke(evt);
 
+    // Ông Bụt Q&A System
+    public static void Publish(PagodaActivatedEvent evt) => OnPagodaActivated?.Invoke(evt);
+    public static void Publish(OngButPhaseChangedEvent evt) => OnOngButPhaseChanged?.Invoke(evt);
+    public static void Publish(OngButQuestionReadyEvent evt) => OnOngButQuestionReady?.Invoke(evt);
+    public static void Publish(OngButAnswerSubmittedEvent evt) => OnOngButAnswerSubmitted?.Invoke(evt);
+    public static void Publish(OngButAnswerResultEvent evt) => OnOngButAnswerResult?.Invoke(evt);
+    public static void Publish(OngButIntroAcknowledgedEvent evt) => OnOngButIntroAcknowledged?.Invoke(evt);
+    public static void Publish(OngButNextQuestionRequestedEvent evt) => OnOngButNextQuestionRequested?.Invoke(evt);
+    public static void Publish(OngButQuizCompletedEvent evt) => OnOngButQuizCompleted?.Invoke(evt);
+    public static void Publish(OngButSkillSelectedEvent evt) => OnOngButSkillSelected?.Invoke(evt);
+    public static void Publish(OngButSkillSelectionConfirmedEvent evt) => OnOngButSkillSelectionConfirmed?.Invoke(evt);
+    public static void Publish(OngButSkillConfirmedEvent evt) => OnOngButSkillConfirmed?.Invoke(evt);
+    public static void Publish(OngButSessionDoneEvent evt) => OnOngButSessionDone?.Invoke(evt);
+    public static void Publish(OngButSkillGrantedEvent evt) => OnOngButSkillGranted?.Invoke(evt);
+    public static void Publish(OngButSkillExecutedEvent evt) => OnOngButSkillExecuted?.Invoke(evt);
+    public static void Publish(OngButReturnRequestedEvent evt) => OnOngButReturnRequested?.Invoke(evt);
+    public static void Publish(OngButSkillHUDActivatedEvent evt) => OnOngButSkillHUDActivated?.Invoke(evt);
+    public static void Publish(OngButIntroDataEvent evt) => OnOngButIntroData?.Invoke(evt);
+    public static void Publish(OngButResultDataEvent evt) => OnOngButResultData?.Invoke(evt);
+    public static void Publish(OngButSuccessDataEvent evt) => OnOngButSuccessData?.Invoke(evt);
+
     // UI
     public static void Publish(ButtonClickEvent evt) => OnButtonClick?.Invoke(evt);
     public static void Publish(SceneContextChangedEvent evt) => OnSceneContextChanged?.Invoke(evt);
@@ -308,6 +390,26 @@ public static class GameEventBus
         OnLineupFinalized = null;
 
         OnLaneSweeperTriggered = null;
+
+        OnPagodaActivated = null;
+        OnOngButPhaseChanged = null;
+        OnOngButQuestionReady = null;
+        OnOngButAnswerSubmitted = null;
+        OnOngButAnswerResult = null;
+        OnOngButIntroAcknowledged = null;
+        OnOngButNextQuestionRequested = null;
+        OnOngButQuizCompleted = null;
+        OnOngButSkillSelected = null;
+        OnOngButSkillSelectionConfirmed = null;
+        OnOngButSkillConfirmed = null;
+        OnOngButSessionDone = null;
+        OnOngButSkillGranted = null;
+        OnOngButSkillExecuted = null;
+        OnOngButReturnRequested = null;
+        OnOngButSkillHUDActivated = null;
+        OnOngButIntroData = null;
+        OnOngButResultData = null;
+        OnOngButSuccessData = null;
 
         OnButtonClick = null;
         OnSceneContextChanged = null;

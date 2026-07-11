@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbb4df94e5a55d64ab78b56ec3baa0b5, type: 3}
+  m_Name: Q4
+  m_EditorClassIdentifier: Assembly-CSharp::HistoricalQuestionData
+  questionID: Q4
+  questionText: What animal did the Trung Sisters (Trung Trac & Trung Nhi) ride when
+    leading the uprising to drive out the Eastern Han army?
+  answers:
+  - Warhorse
+  - Elephant
+  - Buffalo with horns
+  - Fierce tiger
+  correctAnswerIndex: 0
+  answerFeedbacks:
+  - Wrong! Horses are a common means of transportation, but they are not an image
+    associated with the Two Trung Sisters.
+  - Exactly! The image of the Trung Sisters riding elephants into battle has become
+    a symbol of feminism and undying patriotism.
+  - Wrong! Buffaloes are associated with the rice-farming civilization and the chess-playing
+    game of Dinh Bo Linh.
+  - Wrong! The tiger is the king of the jungle, often symbolizing the strength of
+    a warrior, but it is not used as a mount.
+  difficultyTier: 1

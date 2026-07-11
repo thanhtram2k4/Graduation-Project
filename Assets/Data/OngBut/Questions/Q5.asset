@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbb4df94e5a55d64ab78b56ec3baa0b5, type: 3}
+  m_Name: Q5
+  m_EditorClassIdentifier: Assembly-CSharp::HistoricalQuestionData
+  questionID: Q5
+  questionText: Which king, as a child, used reeds as flags to practice mock battles
+    with the buffalo-herding children?
+  answers:
+  - Ly Thai To
+  - Le Thai To
+  - Tran Thai Tong
+  - Dinh Tien Hoang
+  correctAnswerIndex: 0
+  answerFeedbacks:
+  - Wrong! Ly Thai To (Ly Cong Uan) was the one who issued the decree to move the
+    capital from Hoa Lu to Thang Long.
+  - Wrong! Le Thai To (Le Loi) is associated with the Lam Son Uprising and the legend
+    of returning the magic turtle sword.
+  - Wrong! Tran Thai Tong was the first king of the Tran dynasty, ascending the throne
+    after being ceded the throne by Ly Chieu Hoang.
+  - Correct! Dinh Tien Hoang (Dinh Bo Linh) often played mock battles with reeds
+    as a child, and later he was the one who quelled the rebellion of the 12 warlords.
+  difficultyTier: 1

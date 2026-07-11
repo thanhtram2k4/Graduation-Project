@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: "B\u1ED9 \u0111\u1ED9i c\u1EE5 H\u1ED3"
   faction: 0
   category: 1
-  maxHealth: 800
+  maxHealth: 300
   armor: 0
   shieldHP: 0
   magicResistance: 0
@@ -29,7 +29,7 @@ MonoBehaviour:
   placementCost: 100
   sellRefundRate: 0.6
   upgradeCost: 0
-  baseDamage: 10
+  baseDamage: 25
   damageType: 0
   attackRange: 10
   attackCooldown: 1

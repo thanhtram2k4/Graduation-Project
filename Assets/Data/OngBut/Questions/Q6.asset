@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbb4df94e5a55d64ab78b56ec3baa0b5, type: 3}
+  m_Name: Q6
+  m_EditorClassIdentifier: Assembly-CSharp::HistoricalQuestionData
+  questionID: Q6
+  questionText: The story "The Legend of Betel and Areca" explains the origin of
+    what custom in Vietnam?
+  answers:
+  - The custom of chewing betel
+  - The custom of wrapping banh chung
+  - The custom of blackening teeth
+  - Ancestor worship
+  correctAnswerIndex: 0
+  answerFeedbacks:
+  - Exactly! The legend of Betel and Areca praises brotherhood and marital love and
+    explains the custom of using betel and areca in wedding ceremonies.
+  - "Wrong! Banh chung and banh giay (another type of sticky rice cake) are associated
+    with the legend of Lang Li\xEAu during the Hung King era."
+  - Wrong! The custom of blackening teeth is an ancient beauty practice, not originating
+    from the legend of Betel and Areca.
+  - Wrong! Ancestor worship is a core belief of the Vietnamese people, not a custom
+    originating from this story.
+  difficultyTier: 1

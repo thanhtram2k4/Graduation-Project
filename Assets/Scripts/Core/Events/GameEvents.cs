@@ -432,6 +432,195 @@ public struct LaneSweeperTriggeredEvent
 // UI EVENTS
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ÔNG BỤT (FAIRY GOD-GRANDFATHER) Q&A SYSTEM EVENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Published when the player clicks the Pagoda button on the HUD.
+/// Subscriber: OngButSessionManager (validates and starts the trivia session).
+/// </summary>
+public struct PagodaActivatedEvent { }
+
+/// <summary>
+/// Published by OngButSessionManager when the UI phase changes.
+/// Subscriber: OngButUIController (shows/hides the correct panel).
+/// </summary>
+public struct OngButPhaseChangedEvent
+{
+    /// <summary>The new active phase.</summary>
+    public OngButPhase NewPhase;
+}
+
+/// <summary>
+/// Published by OngButSessionManager when a question is ready to display.
+/// Subscriber: OngButQnAPanelUI (populates question text and answer buttons).
+/// </summary>
+public struct OngButQuestionReadyEvent
+{
+    /// <summary>The question data to display.</summary>
+    public HistoricalQuestionData Question;
+
+    /// <summary>1-based question number (e.g. 1, 2, 3).</summary>
+    public int QuestionNumber;
+
+    /// <summary>Total questions in the session.</summary>
+    public int TotalQuestions;
+}
+
+/// <summary>
+/// Published by the UI when the player selects an answer.
+/// Subscriber: OngButSessionManager (evaluates correctness).
+/// </summary>
+public struct OngButAnswerSubmittedEvent
+{
+    /// <summary>Index (0–3) of the selected answer.</summary>
+    public int SelectedIndex;
+}
+
+/// <summary>
+/// Published by OngButSessionManager after evaluating an answer.
+/// Subscriber: OngButQnAPanelUI (shows correct/wrong feedback).
+/// </summary>
+public struct OngButAnswerResultEvent
+{
+    /// <summary>Whether the selected answer was correct.</summary>
+    public bool IsCorrect;
+
+    /// <summary>Specific feedback string for the selected answer.</summary>
+    public string Feedback;
+
+    /// <summary>Index of the correct answer (for highlighting).</summary>
+    public int CorrectIndex;
+
+    /// <summary>Index of the answer the player selected.</summary>
+    public int SelectedIndex;
+
+    /// <summary>Running total of correct answers so far.</summary>
+    public int CurrentScore;
+}
+
+/// <summary>Published by the UI when the player clicks "Understood" in the Intro.</summary>
+public struct OngButIntroAcknowledgedEvent { }
+
+/// <summary>Published by the UI when the player clicks "Next" after seeing answer feedback.</summary>
+public struct OngButNextQuestionRequestedEvent { }
+
+/// <summary>
+/// Published by OngButSessionManager when the Q&A session completes.
+/// Subscriber: OngButResultPanelUI (shows score and skill gallery).
+/// </summary>
+public struct OngButQuizCompletedEvent
+{
+    /// <summary>Number of correct answers (0–3).</summary>
+    public int CorrectAnswers;
+
+    /// <summary>Total questions asked.</summary>
+    public int TotalQuestions;
+}
+
+/// <summary>
+/// Published by the UI when the player selects a skill in the gallery.
+/// Subscriber: OngButSessionManager (validates affordability).
+/// </summary>
+public struct OngButSkillSelectedEvent
+{
+    /// <summary>The selected skill data.</summary>
+    public OngButSkillData Skill;
+}
+
+/// <summary>
+/// Published by OngButSessionManager to confirm a skill selection is valid.
+/// Subscriber: OngButResultPanelUI (updates detail panel and confirm button).
+/// </summary>
+public struct OngButSkillSelectionConfirmedEvent
+{
+    /// <summary>The confirmed skill data for detail display.</summary>
+    public OngButSkillData Skill;
+}
+
+/// <summary>Published by the UI when the player clicks "Confirm" in the skill gallery.</summary>
+public struct OngButSkillConfirmedEvent { }
+
+/// <summary>Published by the UI when the player clicks "Done" in the Success popup.</summary>
+public struct OngButSessionDoneEvent { }
+
+/// <summary>
+/// Published by OngButSessionManager when a skill is granted to the player.
+/// Subscribers: OngButSkillHUDButtonUI (shows skill icon on HUD),
+///              AudioManager (plays blessing SFX).
+/// </summary>
+public struct OngButSkillGrantedEvent
+{
+    /// <summary>The skill ID that was granted.</summary>
+    public string SkillID;
+
+    /// <summary>The full skill data reference.</summary>
+    public OngButSkillData SkillData;
+}
+
+/// <summary>
+/// Published when the player activates the granted Ông Bụt skill from the HUD.
+/// Subscribers: AudioManager (plays skill SFX), OngButSkillHUDButtonUI (disables button).
+/// </summary>
+public struct OngButSkillExecutedEvent
+{
+    /// <summary>The skill ID that was executed.</summary>
+    public string SkillID;
+}
+
+/// <summary>Published by the UI when the player clicks "Return" with 0 correct answers.</summary>
+public struct OngButReturnRequestedEvent { }
+
+/// <summary>Published when the UI when an Ong But skill HUD button is clicked.</summary>
+public struct OngButSkillHUDActivatedEvent { }
+
+/// <summary>Published when the intro dialogue text should be displayed.</summary>
+public struct OngButIntroDataEvent
+{
+    /// <summary>Introduction dialogue text.</summary>
+    public string DialogueText;
+
+    /// <summary>Rules explanation text.</summary>
+    public string RulesText;
+
+    /// <summary>Ông Bụt portrait sprite.</summary>
+    public Sprite PortraitSprite;
+}
+
+/// <summary>Published with result data for the result panel.</summary>
+public struct OngButResultDataEvent
+{
+    /// <summary>Number of correct answers.</summary>
+    public int CorrectAnswers;
+
+    /// <summary>Total questions asked.</summary>
+    public int TotalQuestions;
+
+    /// <summary>Available skills to display in the gallery.</summary>
+    public OngButSkillData[] AvailableSkills;
+
+    /// <summary>Message for zero score (null if score > 0).</summary>
+    public string ZeroScoreMessage;
+}
+
+/// <summary>Published with success message data.</summary>
+public struct OngButSuccessDataEvent
+{
+    /// <summary>Formatted success message with skill name.</summary>
+    public string Message;
+
+    /// <summary>The granted skill's icon.</summary>
+    public Sprite SkillIcon;
+
+    /// <summary>Ông Bụt portrait.</summary>
+    public Sprite PortraitSprite;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// UI EVENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
 /// <summary>Published when any UI button is clicked (for SFX).</summary>
 public struct ButtonClickEvent { }
 

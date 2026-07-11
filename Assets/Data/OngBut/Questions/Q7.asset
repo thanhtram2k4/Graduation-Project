@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbb4df94e5a55d64ab78b56ec3baa0b5, type: 3}
+  m_Name: Q7
+  m_EditorClassIdentifier: Assembly-CSharp::HistoricalQuestionData
+  questionID: Q7
+  questionText: In which battle line did the poem "Nam Quoc Son Ha" (Mountains and
+    Rivers of the Southern Country) demoralize the enemy?
+  answers:
+  - Bach Dang River
+  - Chi Lang Pass
+  - Ngoc Hoi - Dong Da
+  - Nhu Nguyet River
+  correctAnswerIndex: 0
+  answerFeedbacks:
+  - Wrong! The Bach Dang River is associated with the glorious naval victories of
+    Ngo Quyen, Le Hoan, and Tran Hung Dao.
+  - Wrong! Chi Lang Pass is associated with the victory of the Lam Son rebels in
+    crushing the enemy's army.
+  - Wrong! Ngoc Hoi - Dong Da was the great victory of Emperor Quang Trung in defeating
+    the Qing army.
+  - Correct! The poem "Nam Quoc Son Ha" was recited at the Nhu Nguyet River (Cau
+    River) defense line, commanded by Ly Thuong Kiet against the Song army.
+  difficultyTier: 1
