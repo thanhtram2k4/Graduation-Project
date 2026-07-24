@@ -26,15 +26,6 @@ public class OngButResultPanelUI : MonoBehaviour
     [Tooltip("Result summary text (e.g. 'Bạn trả lời đúng 2 câu!').")]
     [SerializeField] private TextMeshProUGUI resultSummaryText;
 
-    [Tooltip("Star icons (filled based on correct count). Optional.")]
-    [SerializeField] private Image[] starIcons = new Image[3];
-
-    [Tooltip("Sprite for a filled star.")]
-    [SerializeField] private Sprite starFilledSprite;
-
-    [Tooltip("Sprite for an empty star.")]
-    [SerializeField] private Sprite starEmptySprite;
-
     [Tooltip("Zero-score message text (shown when score is 0).")]
     [SerializeField] private TextMeshProUGUI zeroScoreMessageText;
 
@@ -115,20 +106,7 @@ public class OngButResultPanelUI : MonoBehaviour
 
         // Score summary
         if (resultSummaryText != null)
-        {
-            resultSummaryText.text = string.Concat(
-                "Bạn trả lời đúng ", evt.CorrectAnswers.ToString(),
-                "/", evt.TotalQuestions.ToString(), " câu!");
-        }
-
-        // Star icons
-        for (int i = 0; i < starIcons.Length; i++)
-        {
-            if (starIcons[i] != null)
-            {
-                starIcons[i].sprite = (i < evt.CorrectAnswers) ? starFilledSprite : starEmptySprite;
-            }
-        }
+            resultSummaryText.text = evt.CorrectAnswers.ToString();
 
         // Zero-score handling
         bool isZeroScore = evt.CorrectAnswers == 0;

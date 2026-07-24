@@ -16,7 +16,7 @@ MonoBehaviour:
   skillName: Golden Star Balm
   skillDescription: A legendary traditional remedy! Instantly revives all fallen
     Hai Ba Trung Lane Sweepers to full strength.
-  skillIcon: {fileID: 0}
+  skillIcon: {fileID: 4377584634726632093, guid: 7e718199099cc124a83fb659d38c3a98, type: 3}
   correctAnswerCost: 3
   effectType: 0
   effectValue: 3

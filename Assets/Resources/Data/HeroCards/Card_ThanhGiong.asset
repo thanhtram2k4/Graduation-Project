@@ -19,11 +19,10 @@ MonoBehaviour:
   cardBackSpriteOverride: {fileID: 4681365037791786175, guid: f87807c2d49fdba4bb95ca3eb436e699, type: 3}
   classIconSprite: {fileID: -1546443605270290197, guid: cb810832522e0d34a9dbf9ec805ed824, type: 3}
   flipAnimationClip: {fileID: 0}
-  biography: One of the "4 Immortals" of Vietnamese folklore. The young boy Giong
-    from Giong village stretched himself into a mighty warrior, uprooting bamboo
-    from his village to use as weapons to defeat the Yin invaders. Giong is a symbol
-    of youthful strength and indomitable patriotism in the fight against foreign
-    invaders.
+  biography: Saint Giong, one of Vietnam's "Four Immortals," was a young boy who
+    miraculously grew into a giant warrior. Uprooting village bamboo to defeat the
+    Yin invaders, he symbolizes youthful strength and indomitable patriotism against
+    foreign aggression.
   specialSkillName: Iron Horse's Breath
   specialSkillDescription: A series of attacks using bamboo sticks (Melee damage).
     Simultaneously, the Passive Skill activates the Iron Horse to continuously breathe

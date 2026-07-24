@@ -23,11 +23,10 @@ MonoBehaviour:
     Son Tinh represents the power to control natural disasters and the unwavering
     steadfastness of Mother Vietnam.
   specialSkillName: Mountain- Moving Boulder
-  specialSkillDescription: Drawing upon divine strength, Son Tinh effortlessly lifts
-    massive boulders with his bare hands and hurls them directly at the enemy ranks.
-    The falling boulders create an earth-shattering impact, inflicting heavy damage
-    and stunning all enemies in the area, crushing their will to advance and rendering
-    them immobile.
+  specialSkillDescription: Using divine strength, Son Tinh effortlessly hurls massive
+    boulders with his bare hands into enemy ranks. The earth-shattering impact inflicts
+    heavy damage and stuns all nearby enemies, crushing their will to advance and
+    rendering them immobile.
   specialSkillIcon: {fileID: 0}
   linkedUnitData: {fileID: 11400000, guid: 55b0f58fd37fbf2469f5ea2e87ff4eb2, type: 2}
   activeSkillData: {fileID: 0}

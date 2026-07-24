@@ -16,7 +16,7 @@ MonoBehaviour:
   skillName: Bach Dang Spikes
   skillDescription: Channel Ngo Quyen's historic 938 victory. Deploys hidden, iron-tipped
     wooden stakes to impale and halt advancing foes.
-  skillIcon: {fileID: 0}
+  skillIcon: {fileID: 3907559269781188489, guid: 33dabfe2f9003f94a8b303df2d0f6ea7, type: 3}
   correctAnswerCost: 1
   effectType: 3
   effectValue: 1

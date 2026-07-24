@@ -16,7 +16,7 @@ MonoBehaviour:
   skillName: Divine Crossbow Volley
   skillDescription: Empowered by the Golden Turtle's claw, Cao Lo's legendary crossbow
     unleashes a devastating, inescapable barrage of arrows.
-  skillIcon: {fileID: 0}
+  skillIcon: {fileID: 3767749696066777572, guid: d1e8974912fd3754eb3d88c691ecd5c0, type: 3}
   correctAnswerCost: 2
   effectType: 1
   effectValue: 2

@@ -16,7 +16,7 @@ MonoBehaviour:
   skillName: Geese Patrol
   skillDescription: Summons a flock of highly territorial guard geese! With sharp
     senses, they will loudly alarm and fiercely peck any intruders.
-  skillIcon: {fileID: 0}
+  skillIcon: {fileID: 2244833088034945318, guid: d46ad159102608744bacc2c47035de54, type: 3}
   correctAnswerCost: 2
   effectType: 3
   effectValue: 100

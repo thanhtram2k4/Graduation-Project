@@ -19,10 +19,10 @@ MonoBehaviour:
   cardBackSpriteOverride: {fileID: 4681365037791786175, guid: f87807c2d49fdba4bb95ca3eb436e699, type: 3}
   classIconSprite: {fileID: -4073354373329374380, guid: ac0c65e6fecdb7744a65aee74c087554, type: 3}
   flipAnimationClip: {fileID: 0}
-  biography: The embodiment of National Ancestor Lac Long Quan, the origin of the
-    Vietnamese nation. Bearing noble blood, the Golden Dragon is the ultimate symbol
-    of strength, pride, and the great unity of "Children of the Dragon and the Immortal."
-    His presence bestows blessings and vitality upon the entire front line.
+  biography: "Lac Long Quan, Vietnam's National Ancestor, embodies the noble Golden
+    Dragon\u2014the ultimate symbol of strength, pride, and the unity of the \"Children
+    of the Dragon and the Immortal.\" His presence brings blessings and vital energy
+    to the entire front line."
   specialSkillName: Origins of the Hundred Viet
   specialSkillDescription: Periodically drops "Dragon & Fairy Eggs". Players collect
     Dragon Eggs to accumulate resources (Mana/Sun), which can then be used to recruit

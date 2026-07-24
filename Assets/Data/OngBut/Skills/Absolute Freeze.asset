@@ -16,7 +16,7 @@ MonoBehaviour:
   skillName: Absolute Freeze
   skillDescription: Instantly chills the battlefield, freezing all active enemies
     in their tracks for exactly 5 seconds.
-  skillIcon: {fileID: 0}
+  skillIcon: {fileID: -2460092026626089070, guid: 3fc33e79814d15245883031725782981, type: 3}
   correctAnswerCost: 2
   effectType: 4
   effectValue: 100

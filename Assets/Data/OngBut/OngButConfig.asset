@@ -19,16 +19,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 753b2d5f6d526c049a6b52e52c4a0d1c, type: 2}
   - {fileID: 11400000, guid: 0d364000ad841e940bea0f702bebf420, type: 2}
   - {fileID: 11400000, guid: 3a95071553ed5d449a9a4af150bb71f1, type: 2}
-  introDialogueText: "Ch\xE0o con, ta l\xE0 \xD4ng B\u1EE5t! Ta s\u1EBD ban cho con
-    m\u1ED9t ph\xE9p m\xE0u n\u1EBFu con tr\u1EA3 l\u1EDDi \u0111\xFAng c\xE1c c\xE2u
-    h\u1ECFi l\u1ECBch s\u1EED."
-  rulesExplanationText: "Con s\u1EBD tr\u1EA3 l\u1EDDi 3 c\xE2u h\u1ECFi l\u1ECBch
-    s\u1EED. S\u1ED1 c\xE2u tr\u1EA3 l\u1EDDi \u0111\xFAng s\u1EBD l\xE0 \u0111i\u1EC3m
-    \u0111\u1EC3 con \u0111\u1ED5i l\u1EA5y k\u1EF9 n\u0103ng \u0111\u1EB7c bi\u1EC7t."
-  successMessageTemplate: "Ch\xFAc m\u1EEBng!!! \u0110i\u1EC1u \u01B0\u1EDBc k\u1EF9
-    n\u0103ng \u0111\u1EB7c bi\u1EC7t \"{0}\" \u0111\xE3 \u0111\u01B0\u1EE3c \xD4ng
-    B\u1EE5t ban t\u1EB7ng!"
-  zeroScoreMessage: "\xD4ng B\u1EE5t th\u01B0\u01A1ng c\u1EA3m... Con ch\u01B0a tr\u1EA3
-    l\u1EDDi \u0111\xFAng c\xE2u n\xE0o. H\xE3y c\u1ED1 g\u1EAFng l\u1EA7n sau nh\xE9!"
+  introDialogueText: .
+  rulesExplanationText: .
+  successMessageTemplate: .
+  zeroScoreMessage: .
   ongButPortraitSprite: {fileID: 0}
   pagodaButtonIcon: {fileID: 0}
