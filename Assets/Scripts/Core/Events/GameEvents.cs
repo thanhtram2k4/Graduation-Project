@@ -622,6 +622,28 @@ public struct OngButSuccessDataEvent
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// DRAFT POOL EVENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Published by LineupManager when the draft pool is built (entering Drafting,
+/// or lazily before the shuffle). The pool holds unlocked heroes, padded with
+/// locked ones only if too few are unlocked to fill the lineup.
+/// Subscriber: DraftingUI (renders the gallery from exactly this pool).
+/// </summary>
+public struct DraftPoolBuiltEvent
+{
+    /// <summary>The pool. Owned by LineupManager; read-only, valid until the next build.</summary>
+    public System.Collections.Generic.IReadOnlyList<HeroCardData> Heroes;
+
+    /// <summary>Unlocked heroes in the pool.</summary>
+    public int UnlockedCount;
+
+    /// <summary>Locked heroes padded in to reach the lineup size.</summary>
+    public int PaddedCount;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ERA PROGRESSION EVENTS
 // ─────────────────────────────────────────────────────────────────────────────
 

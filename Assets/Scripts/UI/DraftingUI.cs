@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -7,12 +8,13 @@ using TMPro;
 // Gallery-style hero preview grid with detail panel and SHUFFLE button.
 //
 // UI layer component — ZERO references to gameplay MonoBehaviours (Rule 07).
-// Reads HeroCardData assets directly (data assets, not gameplay components).
+// The gallery shows exactly the draft pool LineupManager publishes in
+// DraftPoolBuiltEvent (unlocked heroes, padded if too few), so it always
+// matches the deck the player will draw from.
 // Communicates via GameEventBus (publishes DraftConfirmedEvent on confirm).
 //
 // Gallery Mode: Clicking a card shows hero details in the DetailPanel.
 // No hero selection is required — the SHUFFLE button is always active.
-// ALL available heroes are used for the shuffled deck automatically.
 // =============================================================================
 
 /// <summary>
@@ -48,11 +50,6 @@ public class DraftingUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI selectedCountText;
     [SerializeField] private Button confirmButton;
 
-    [Header("Data")]
-    [Tooltip("All hero card data assets. Populate via Inspector or loaded at runtime.\n" +
-             "This is a data asset reference, not a gameplay MonoBehaviour (Rule 07 compliant).")]
-    [SerializeField] private HeroCardData[] allHeroCards;
-
     // ─────────────────────────────────────────────────────────────────────────
     // Internal State (CanvasGroup)
     // ─────────────────────────────────────────────────────────────────────────
@@ -70,12 +67,6 @@ public class DraftingUI : MonoBehaviour
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
-
-        // Try to load hero cards from Resources if not assigned in Inspector
-        if (allHeroCards == null || allHeroCards.Length == 0)
-        {
-            allHeroCards = Resources.LoadAll<HeroCardData>("Data/HeroCards");
-        }
     }
 
     private void Start()
@@ -88,6 +79,7 @@ public class DraftingUI : MonoBehaviour
     private void OnEnable()
     {
         GameEventBus.OnLevelStateChanged += HandleLevelStateChanged;
+        GameEventBus.OnDraftPoolBuilt += HandleDraftPoolBuilt;
 
         if (confirmButton != null)
             confirmButton.onClick.AddListener(OnConfirmClicked);
@@ -96,6 +88,7 @@ public class DraftingUI : MonoBehaviour
     private void OnDisable()
     {
         GameEventBus.OnLevelStateChanged -= HandleLevelStateChanged;
+        GameEventBus.OnDraftPoolBuilt -= HandleDraftPoolBuilt;
 
         if (confirmButton != null)
             confirmButton.onClick.RemoveListener(OnConfirmClicked);
@@ -109,13 +102,13 @@ public class DraftingUI : MonoBehaviour
 
     /// <summary>
     /// Shows the draft panel during Drafting state, hides it otherwise.
+    /// The grid itself is filled by <see cref="HandleDraftPoolBuilt"/>.
     /// </summary>
     private void HandleLevelStateChanged(LevelStateChangedEvent evt)
     {
         if (evt.NewState == LevelState.Drafting)
         {
             SetVisibility(true);
-            PopulateGrid();
 
             // SHUFFLE button is ALWAYS interactable in Gallery Mode
             if (confirmButton != null)
@@ -134,31 +127,26 @@ public class DraftingUI : MonoBehaviour
     // Grid Population
     // ─────────────────────────────────────────────────────────────────────────
 
+    /// <summary>Rebuilds the gallery from the pool LineupManager just built.</summary>
+    private void HandleDraftPoolBuilt(DraftPoolBuiltEvent evt) => PopulateGrid(evt.Heroes);
+
     /// <summary>
-    /// Instantiates DraftCardSlot prefabs for each available hero.
-    /// Filters to isAvailable == true. Index-based loop, no LINQ (Rule 07).
+    /// Instantiates one DraftCardSlot per hero in the draft pool.
+    /// Index-based loop, no LINQ (Rule 07).
     /// </summary>
-    private void PopulateGrid()
+    private void PopulateGrid(IReadOnlyList<HeroCardData> heroes)
     {
         CleanupSlots();
 
-        if (allHeroCards == null || heroGridParent == null || draftCardSlotPrefab == null)
+        if (heroes == null || heroGridParent == null || draftCardSlotPrefab == null)
             return;
 
-        // Count available heroes for pre-allocation
-        int availableCount = 0;
-        for (int i = 0; i < allHeroCards.Length; i++)
-        {
-            if (allHeroCards[i] != null && allHeroCards[i].isAvailable)
-                availableCount++;
-        }
-
-        _spawnedSlots = new DraftCardSlot[availableCount];
+        _spawnedSlots = new DraftCardSlot[heroes.Count];
         _spawnedCount = 0;
 
-        for (int i = 0; i < allHeroCards.Length; i++)
+        for (int i = 0; i < heroes.Count; i++)
         {
-            if (allHeroCards[i] == null || !allHeroCards[i].isAvailable)
+            if (heroes[i] == null)
                 continue;
 
             GameObject slotObj = Instantiate(draftCardSlotPrefab, heroGridParent);
@@ -166,7 +154,7 @@ public class DraftingUI : MonoBehaviour
 
             if (slot != null)
             {
-                slot.Initialize(allHeroCards[i]);
+                slot.Initialize(heroes[i]);
                 slot.OnSlotClicked += HandleSlotClicked;
                 _spawnedSlots[_spawnedCount] = slot;
                 _spawnedCount++;

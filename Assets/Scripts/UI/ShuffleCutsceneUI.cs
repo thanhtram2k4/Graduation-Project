@@ -155,12 +155,12 @@ public class ShuffleCutsceneUI : MonoBehaviour
             SetVisibility(true);
 
             // ── SYNCHRONOUS DECK PREPARATION ──
-            // Force LineupManager to populate the deck from ALL available
-            // heroes and run Fisher-Yates shuffle RIGHT NOW, before the
+            // Force LineupManager to populate the deck from the draft pool
+            // (unlocked heroes) and run Fisher-Yates shuffle RIGHT NOW, before the
             // coroutine reads DeckSize. This guarantees DeckSize > 0
             // regardless of which subscriber Unity calls first.
             if (LineupManager.Instance != null)
-                LineupManager.Instance.ForcePrepareDeckFromAllAvailable();
+                LineupManager.Instance.PrepareDeckFromDraftPool();
 
             _cutsceneCoroutine = StartCoroutine(RunCutsceneSequence());
         }
@@ -232,7 +232,7 @@ public class ShuffleCutsceneUI : MonoBehaviour
     /// Main cutscene coroutine: Phase 1 (auto shuffle) → Phase 2 (wait for picks).
     /// Phase 3 is triggered by HandleLineupFinalized.
     ///
-    /// IMPORTANT: ForcePrepareDeckFromAllAvailable() has already been called
+    /// IMPORTANT: PrepareDeckFromDraftPool() has already been called
     /// synchronously in HandleLevelStateChanged BEFORE this coroutine starts.
     /// DeckSize is guaranteed to be correct at this point.
     /// </summary>

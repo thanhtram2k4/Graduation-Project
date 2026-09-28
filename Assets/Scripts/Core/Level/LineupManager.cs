@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 // =============================================================================
@@ -8,8 +10,11 @@ using UnityEngine;
 // Gameplay layer singleton. Communicates with UI exclusively via GameEventBus.
 //
 // Data flow (Gallery Mode — no manual draft selection):
-//   [All HeroCardData assets] → Filter isAvailable → [Available Pool]
-//       → ForcePrepareDeckFromAllAvailable() on Shuffling state
+//   [All HeroCardData assets] → Filter isAvailable → [Catalog]
+//       → BuildDraftPool() on Drafting state: keep heroes unlocked in
+//         EraProgressionManager, pad with locked ones if too few (DraftPoolBuilder)
+//       → DraftPoolBuiltEvent → DraftingUI gallery
+//       → PrepareDeckFromDraftPool() on Shuffling state
 //       → Fisher-Yates shuffle → [Shuffled Deck]
 //       → Player clicks face-down cards (BlindCardClickedEvent) × maxLineupSize
 //       → [Final Lineup] → Player presses START → LineupFinalizedEvent → Preparing
@@ -50,7 +55,17 @@ public class LineupManager : MonoBehaviour
     /// <summary>All available hero cards (isAvailable == true). Cached on init.</summary>
     private HeroCardData[] _availableHeroes;
 
-    /// <summary>Shuffled deck used during blind pick. Populated from _availableHeroes.</summary>
+    /// <summary>Heroes the player may draft this level: unlocked, padded if too few. Reused list.</summary>
+    private readonly List<HeroCardData> _draftPool = new List<HeroCardData>();
+
+    /// <summary>True once the draft pool has been built for this level.</summary>
+    private bool _draftPoolBuilt;
+
+    // Cached so building the pool never allocates a delegate.
+    private static readonly Predicate<HeroCardData> IsUnlockedInProgression =
+        hero => EraProgressionManager.Instance.IsHeroUnlocked(hero);
+
+    /// <summary>Shuffled deck used during blind pick. Populated from _draftPool.</summary>
     private HeroCardData[] _shuffledDeck;
 
     /// <summary>Number of heroes in the shuffled deck.</summary>
@@ -78,13 +93,13 @@ public class LineupManager : MonoBehaviour
     // Public API (read-only)
     // ─────────────────────────────────────────────────────────────────────────
 
-    /// <summary>All available hero cards for DraftingUI gallery display.</summary>
-    public HeroCardData[] AvailableHeroes => _availableHeroes;
+    /// <summary>The current draft pool (empty until built on entering Drafting).</summary>
+    public IReadOnlyList<HeroCardData> DraftPool => _draftPool;
 
     /// <summary>
     /// Number of cards in the shuffled deck. Used by ShuffleCutsceneUI to
     /// spawn the correct number of blind pick card UI elements.
-    /// Only valid after ForcePrepareDeckFromAllAvailable() has been called.
+    /// Only valid after PrepareDeckFromDraftPool() has been called.
     /// </summary>
     public int DeckSize => _deckSize;
 
@@ -221,15 +236,16 @@ public class LineupManager : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// When entering Shuffling state, automatically prepare the deck from
-    /// ALL available heroes. In Gallery Mode the Drafting phase is
-    /// purely informational — no manual selection is used.
+    /// Drafting: build the draft pool (the gallery shows it).
+    /// Shuffling: prepare the deck from that pool. In Gallery Mode the
+    /// Drafting phase is purely informational — no manual selection is used.
     /// </summary>
     private void HandleLevelStateChanged(LevelStateChangedEvent evt)
     {
-        if (evt.NewState != LevelState.Shuffling) return;
-
-        ForcePrepareDeckFromAllAvailable();
+        if (evt.NewState == LevelState.Drafting)
+            BuildDraftPool();
+        else if (evt.NewState == LevelState.Shuffling)
+            PrepareDeckFromDraftPool();
     }
 
     /// <summary>
@@ -319,9 +335,45 @@ public class LineupManager : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Populates the shuffled deck from ALL available heroes (isAvailable == true)
-    /// and runs the Fisher-Yates shuffle. Used in "Gallery Mode" where the
-    /// Drafting phase is purely informational — no manual hero selection.
+    /// Builds the draft pool: available heroes the player has unlocked, padded
+    /// with random locked heroes if fewer than maxLineupSize are unlocked, so
+    /// the blind pick can always complete. Publishes <see cref="DraftPoolBuiltEvent"/>.
+    ///
+    /// If no EraProgressionManager exists (e.g. a test scene), every available
+    /// hero is used and a warning is logged.
+    /// </summary>
+    public void BuildDraftPool()
+    {
+        bool hasProgression = EraProgressionManager.Instance != null;
+        if (!hasProgression)
+            Debug.LogWarning("[LineupManager] No EraProgressionManager in the scene — draft pool is not filtered by unlocks.");
+
+        int lineupSize = MaxLineupSize;
+        DraftPoolStats stats = DraftPoolBuilder.Build(
+            _availableHeroes, hasProgression ? IsUnlockedInProgression : null, lineupSize, _draftPool);
+        _draftPoolBuilt = true;
+
+        if (stats.PaddedCount > 0)
+            Debug.LogWarning($"[LineupManager] Only {stats.UnlockedCount} unlocked heroes for a lineup of {lineupSize}; " +
+                             $"padded the draft with {stats.PaddedCount} locked heroes. Add more starting heroes to EraProgressionManager.");
+
+        if (_draftPool.Count < lineupSize)
+            Debug.LogError($"[LineupManager] Draft pool has {_draftPool.Count} heroes but the lineup needs {lineupSize}; " +
+                           "the blind pick cannot be completed. Add more available HeroCardData assets.");
+
+        Debug.Log($"[LineupManager] Draft pool built: {_draftPool.Count} heroes ({stats.UnlockedCount} unlocked, {stats.PaddedCount} padded).");
+
+        GameEventBus.Publish(new DraftPoolBuiltEvent
+        {
+            Heroes = _draftPool,
+            UnlockedCount = stats.UnlockedCount,
+            PaddedCount = stats.PaddedCount
+        });
+    }
+
+    /// <summary>
+    /// Populates the shuffled deck from the draft pool (built first if the
+    /// Drafting state was skipped) and runs the Fisher-Yates shuffle.
     ///
     /// Called automatically by HandleLevelStateChanged(Shuffling), and also
     /// explicitly by ShuffleCutsceneUI to guarantee the deck is ready before
@@ -329,15 +381,16 @@ public class LineupManager : MonoBehaviour
     ///
     /// Safe to call multiple times; overwrites previous deck each time.
     /// </summary>
-    public void ForcePrepareDeckFromAllAvailable()
+    public void PrepareDeckFromDraftPool()
     {
-        if (_availableHeroes == null || _availableHeroes.Length == 0)
+        if (!_draftPoolBuilt) BuildDraftPool();
+
+        int count = _draftPool.Count;
+        if (count == 0)
         {
-            Debug.LogWarning("[LineupManager] ForcePrepareDeck — no available heroes loaded.");
+            Debug.LogWarning("[LineupManager] PrepareDeck — draft pool is empty.");
             return;
         }
-
-        int count = _availableHeroes.Length;
 
         // Resize deck array if needed (one-time, not in hot path)
         if (count > _shuffledDeck.Length)
@@ -345,10 +398,9 @@ public class LineupManager : MonoBehaviour
             _shuffledDeck = new HeroCardData[count];
         }
 
-        // Copy all available heroes into the deck
         for (int i = 0; i < count; i++)
         {
-            _shuffledDeck[i] = _availableHeroes[i];
+            _shuffledDeck[i] = _draftPool[i];
         }
         _deckSize = count;
 
@@ -356,7 +408,7 @@ public class LineupManager : MonoBehaviour
         // In-place, index-based, no LINQ (Rule 05, Rule 07)
         for (int i = _deckSize - 1; i > 0; i--)
         {
-            int j = Random.Range(0, i + 1);
+            int j = UnityEngine.Random.Range(0, i + 1);
             HeroCardData temp = _shuffledDeck[i];
             _shuffledDeck[i] = _shuffledDeck[j];
             _shuffledDeck[j] = temp;
@@ -368,7 +420,14 @@ public class LineupManager : MonoBehaviour
         _revealInProgress = false;
         _lineupConfirmed = false;
 
-        Debug.Log($"[LineupManager] Deck prepared from all available heroes. Deck size: {_deckSize}");
+        Debug.Log($"[LineupManager] Deck prepared from the draft pool. Deck size: {_deckSize}");
+    }
+
+    /// <summary>Test seam: replaces the Resources-loaded catalog and forces a pool rebuild.</summary>
+    internal void OverrideCatalog(HeroCardData[] catalog)
+    {
+        _availableHeroes = catalog ?? Array.Empty<HeroCardData>();
+        _draftPoolBuilt = false;
     }
 
     // ─────────────────────────────────────────────────────────────────────────

@@ -45,5 +45,7 @@ Thumbs.db
 # Ignore editor-only builds
 EditorOnlyBuild/
 
-# Ignore IDE-generated project files for our assembly definitions
+# Ignore IDE-generated project and solution files (Unity regenerates them)
 HaoKhiSuViet.*.csproj
+Assembly-CSharp.csproj
+*.slnx

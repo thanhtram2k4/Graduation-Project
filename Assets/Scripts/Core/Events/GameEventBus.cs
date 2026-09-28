@@ -153,6 +153,9 @@ public static class GameEventBus
     /// <summary>Raised by LineupManager when all required heroes have been picked.</summary>
     public static event Action<LineupFinalizedEvent> OnLineupFinalized;
 
+    /// <summary>Raised by LineupManager when the (unlock-filtered) draft pool is built.</summary>
+    public static event Action<DraftPoolBuiltEvent> OnDraftPoolBuilt;
+
     // ─────────────────────────────────────────────────────────────────────────
     // ACTIVE SKILL (Board-Level)
     // ─────────────────────────────────────────────────────────────────────────
@@ -319,6 +322,7 @@ public static class GameEventBus
     public static void Publish(BlindCardClickedEvent evt) => OnBlindCardClicked?.Invoke(evt);
     public static void Publish(BlindCardRevealedEvent evt) => OnBlindCardRevealed?.Invoke(evt);
     public static void Publish(LineupFinalizedEvent evt) => OnLineupFinalized?.Invoke(evt);
+    public static void Publish(DraftPoolBuiltEvent evt) => OnDraftPoolBuilt?.Invoke(evt);
 
     // Ông Bụt Q&A System
     public static void Publish(PagodaActivatedEvent evt) => OnPagodaActivated?.Invoke(evt);
@@ -402,6 +406,7 @@ public static class GameEventBus
         OnBlindCardClicked = null;
         OnBlindCardRevealed = null;
         OnLineupFinalized = null;
+        OnDraftPoolBuilt = null;
 
         OnLaneSweeperTriggered = null;
 
