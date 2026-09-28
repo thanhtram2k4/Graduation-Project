@@ -35,8 +35,9 @@ public class OngButSessionManager : MonoBehaviour
 
     private bool _hasBeenUsedThisLevel;
     private OngButPhase _currentPhase = OngButPhase.Inactive;
-    private List<HistoricalQuestionData> _drawnQuestions;
+    private readonly List<HistoricalQuestionData> _drawnQuestions = new List<HistoricalQuestionData>();
     private int _currentQuestionIndex;
+    private bool _hasAnsweredCurrentQuestion;
     private int _correctAnswerCount;
     private OngButSkillData _selectedSkill;
     private OngButSkillData _grantedSkill;
@@ -154,6 +155,24 @@ public class OngButSessionManager : MonoBehaviour
             return;
         }
 
+        // Guard: questions are drawn from the active level's era only
+        LevelConfig levelConfig = GetActiveLevelConfig();
+        if (levelConfig == null)
+        {
+            Debug.LogError("[OngButSessionManager] No active LevelConfig; cannot determine the era for questions.", this);
+            return;
+        }
+
+        EraType levelEra = levelConfig.levelEra;
+        QuestionBankData bank = sessionConfig.QuestionBank;
+
+        if (bank.GetQuestionsByEra(levelEra, bank.QuestionsPerSession, _drawnQuestions) == 0)
+        {
+            Debug.LogError($"[OngButSessionManager] No {levelEra} questions in the bank for level " +
+                           $"'{levelConfig.levelDisplayName}'.", this);
+            return;
+        }
+
         // Mark as used
         _hasBeenUsedThisLevel = true;
 
@@ -161,16 +180,6 @@ public class OngButSessionManager : MonoBehaviour
         _currentQuestionIndex = 0;
         _correctAnswerCount = 0;
         _selectedSkill = null;
-
-        // Draw questions
-        _drawnQuestions = sessionConfig.QuestionBank.DrawRandomQuestions();
-
-        if (_drawnQuestions.Count == 0)
-        {
-            Debug.LogError("[OngButSessionManager] No questions drawn from bank.", this);
-            _hasBeenUsedThisLevel = false;
-            return;
-        }
 
         // Pause game
         Time.timeScale = 0f;
@@ -209,6 +218,11 @@ public class OngButSessionManager : MonoBehaviour
         if (_currentPhase != OngButPhase.Questioning) return;
         if (_currentQuestionIndex >= _drawnQuestions.Count) return;
 
+        // Guard: one answer per question. The UI disables its buttons, but any
+        // publisher can raise this event, so the gameplay layer enforces it too.
+        if (_hasAnsweredCurrentQuestion) return;
+        _hasAnsweredCurrentQuestion = true;
+
         HistoricalQuestionData question = _drawnQuestions[_currentQuestionIndex];
         bool isCorrect = evt.SelectedIndex == question.CorrectAnswerIndex;
 
@@ -222,6 +236,7 @@ public class OngButSessionManager : MonoBehaviour
         GameEventBus.Publish(new OngButAnswerResultEvent
         {
             IsCorrect = isCorrect,
+            Era = question.Era,
             Feedback = specificFeedback,
             CorrectIndex = question.CorrectAnswerIndex,
             SelectedIndex = evt.SelectedIndex,
@@ -393,11 +408,29 @@ public class OngButSessionManager : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>
+    /// Resolves the active LevelConfig at call time, same order as EnemySpawner:
+    /// CampaignManager (DDOL) first, then GameManager's fallback.
+    /// </summary>
+    private static LevelConfig GetActiveLevelConfig()
+    {
+        if (CampaignManager.Instance != null)
+            return CampaignManager.Instance.CurrentLevelConfig;
+
+        if (GameManager.Instance != null)
+            return GameManager.Instance.currentLevelConfig;
+
+        return null;
+    }
+
+    /// <summary>
     /// Publishes the current question data for the UI to display.
     /// </summary>
     private void PublishCurrentQuestion()
     {
         if (_currentQuestionIndex >= _drawnQuestions.Count) return;
+
+        // New question on screen → it can be answered once.
+        _hasAnsweredCurrentQuestion = false;
 
         GameEventBus.Publish(new OngButQuestionReadyEvent
         {

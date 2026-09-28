@@ -44,3 +44,6 @@ Thumbs.db
 
 # Ignore editor-only builds
 EditorOnlyBuild/
+
+# Ignore IDE-generated project files for our assembly definitions
+HaoKhiSuViet.*.csproj

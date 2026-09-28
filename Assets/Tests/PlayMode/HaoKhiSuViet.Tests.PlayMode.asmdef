@@ -1,0 +1,23 @@
+{
+    "name": "HaoKhiSuViet.Tests.PlayMode",
+    "rootNamespace": "HaoKhiSuViet.Tests",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "HaoKhiSuViet.Runtime",
+        "HaoKhiSuViet.Tests.Support"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

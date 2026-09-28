@@ -160,6 +160,10 @@ public class LevelConfig : ScriptableObject
     [TextArea(2, 3)]
     public string levelDescription;
 
+    [Tooltip("Era this level belongs to. The Ông Bụt Q&A session only draws " +
+             "questions from this era, and correct answers unlock heroes from it.")]
+    public EraType levelEra = EraType.History;
+
     // ─────────────────────────────────────────────────────────────────────────
     // GRID DIMENSIONS
     // ─────────────────────────────────────────────────────────────────────────

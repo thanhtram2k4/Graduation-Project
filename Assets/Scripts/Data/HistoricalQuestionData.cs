@@ -24,6 +24,10 @@ public class HistoricalQuestionData : ScriptableObject
     [Tooltip("Unique identifier (e.g. 'Q_BachDang_01').")]
     [SerializeField] private string questionID;
 
+    [Tooltip("Era this question belongs to. Must match the era of the heroes it is " +
+             "paired with so Ông Bụt only asks questions from the current era.")]
+    [SerializeField] private EraType era = EraType.History;
+
     // ── Question Content ────────────────────────────────────────────────────
 
     [Header("Question Content")]
@@ -56,6 +60,9 @@ public class HistoricalQuestionData : ScriptableObject
 
     /// <summary>Unique question identifier.</summary>
     public string QuestionID => questionID;
+
+    /// <summary>Era this question belongs to (value type — reading it never allocates).</summary>
+    public EraType Era => era;
 
     /// <summary>The trivia question text in Vietnamese.</summary>
     public string QuestionText => questionText;

@@ -239,6 +239,16 @@ public static class GameEventBus
     public static event Action<OngButSuccessDataEvent> OnOngButSuccessData;
 
     // ─────────────────────────────────────────────────────────────────────────
+    // ERA PROGRESSION
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>Raised when a hero is newly unlocked.</summary>
+    public static event Action<HeroUnlockedEvent> OnHeroUnlocked;
+
+    /// <summary>Raised when an era is newly unlocked.</summary>
+    public static event Action<EraUnlockedEvent> OnEraUnlocked;
+
+    // ─────────────────────────────────────────────────────────────────────────
     // UI
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -331,6 +341,10 @@ public static class GameEventBus
     public static void Publish(OngButResultDataEvent evt) => OnOngButResultData?.Invoke(evt);
     public static void Publish(OngButSuccessDataEvent evt) => OnOngButSuccessData?.Invoke(evt);
 
+    // Era Progression
+    public static void Publish(HeroUnlockedEvent evt) => OnHeroUnlocked?.Invoke(evt);
+    public static void Publish(EraUnlockedEvent evt) => OnEraUnlocked?.Invoke(evt);
+
     // UI
     public static void Publish(ButtonClickEvent evt) => OnButtonClick?.Invoke(evt);
     public static void Publish(SceneContextChangedEvent evt) => OnSceneContextChanged?.Invoke(evt);
@@ -410,6 +424,9 @@ public static class GameEventBus
         OnOngButIntroData = null;
         OnOngButResultData = null;
         OnOngButSuccessData = null;
+
+        OnHeroUnlocked = null;
+        OnEraUnlocked = null;
 
         OnButtonClick = null;
         OnSceneContextChanged = null;

@@ -480,12 +480,16 @@ public struct OngButAnswerSubmittedEvent
 
 /// <summary>
 /// Published by OngButSessionManager after evaluating an answer.
-/// Subscriber: OngButQnAPanelUI (shows correct/wrong feedback).
+/// Subscribers: OngButQnAPanelUI (shows correct/wrong feedback),
+///              EraProgressionManager (unlocks a hero from <see cref="Era"/> on a correct answer).
 /// </summary>
 public struct OngButAnswerResultEvent
 {
     /// <summary>Whether the selected answer was correct.</summary>
     public bool IsCorrect;
+
+    /// <summary>Era of the question that was answered.</summary>
+    public EraType Era;
 
     /// <summary>Specific feedback string for the selected answer.</summary>
     public string Feedback;
@@ -615,6 +619,33 @@ public struct OngButSuccessDataEvent
 
     /// <summary>Ông Bụt portrait.</summary>
     public Sprite PortraitSprite;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ERA PROGRESSION EVENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Published by EraProgressionManager when a hero is newly unlocked.
+/// Subscribers: unlock toast / roster UI, AudioManager (unlock chime).
+/// </summary>
+public struct HeroUnlockedEvent
+{
+    /// <summary>The hero that was unlocked.</summary>
+    public HeroCardData Hero;
+
+    /// <summary>Era the hero belongs to.</summary>
+    public EraType Era;
+}
+
+/// <summary>
+/// Published by EraProgressionManager when an era is newly unlocked.
+/// Subscribers: era selection UI, AudioManager.
+/// </summary>
+public struct EraUnlockedEvent
+{
+    /// <summary>The era that was unlocked.</summary>
+    public EraType Era;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

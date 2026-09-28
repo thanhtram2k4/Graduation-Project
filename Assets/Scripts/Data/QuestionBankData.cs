@@ -5,14 +5,14 @@ using UnityEngine;
 // QuestionBankData — Pool of HistoricalQuestionData assets
 //
 // Holds a collection of trivia questions and provides a Fisher-Yates partial
-// shuffle to draw N non-repeating questions per Ông Bụt session.
-// Same shuffle pattern as the hero draft system (Rule 05).
+// shuffle to draw N non-repeating questions of a single era per Ông Bụt
+// session. Same shuffle pattern as the hero draft system (Rule 05).
 // =============================================================================
 
 /// <summary>
 /// ScriptableObject containing a pool of <see cref="HistoricalQuestionData"/>
-/// assets. Provides <see cref="DrawRandomQuestions"/> to select non-repeating
-/// questions using a Fisher-Yates partial shuffle.
+/// assets. Provides <see cref="GetQuestionsByEra(EraType, int)"/> to select
+/// non-repeating questions of one era using a Fisher-Yates partial shuffle.
 /// </summary>
 [CreateAssetMenu(fileName = "QuestionBank_New", menuName = "HaoKhiSuViet/OngBut/QuestionBank")]
 public class QuestionBankData : ScriptableObject
@@ -31,53 +31,77 @@ public class QuestionBankData : ScriptableObject
     /// <summary>Number of questions drawn per session.</summary>
     public int QuestionsPerSession => questionsPerSession;
 
+    // Reused shuffle buffer so repeated draws don't allocate. Runtime-only.
+    [System.NonSerialized] private List<HistoricalQuestionData> _eraPoolBuffer;
+
     /// <summary>
-    /// Draws <paramref name="count"/> non-repeating questions from the bank
-    /// using a Fisher-Yates partial shuffle. Does not modify the source list.
-    /// Called once per session — not a per-frame operation.
+    /// Draws up to <paramref name="count"/> non-repeating questions whose
+    /// <see cref="HistoricalQuestionData.Era"/> equals <paramref name="currentEra"/>.
+    /// Allocates the returned list; prefer the overload taking a results list
+    /// when calling repeatedly.
     /// </summary>
-    /// <param name="count">Number of questions to draw. Clamped to pool size.</param>
-    /// <returns>A new list of randomly selected questions.</returns>
-    public List<HistoricalQuestionData> DrawRandomQuestions(int count)
+    /// <param name="currentEra">Only questions from this era are drawn.</param>
+    /// <param name="count">Number of questions to draw. Clamped to the era's pool size.</param>
+    /// <returns>A new list of randomly selected questions; empty if the era has none.</returns>
+    public List<HistoricalQuestionData> GetQuestionsByEra(EraType currentEra, int count)
     {
-        if (questions.Count == 0)
+        var results = new List<HistoricalQuestionData>(Mathf.Max(count, 0));
+        GetQuestionsByEra(currentEra, count, results);
+        return results;
+    }
+
+    /// <summary>
+    /// Clears <paramref name="results"/> and fills it with up to <paramref name="count"/>
+    /// non-repeating questions from <paramref name="currentEra"/>, using a
+    /// Fisher-Yates partial shuffle. Does not modify the source list or allocate
+    /// once the internal buffer has grown to the pool size.
+    /// </summary>
+    /// <param name="currentEra">Only questions from this era are drawn.</param>
+    /// <param name="count">Number of questions to draw. Clamped to the era's pool size.</param>
+    /// <param name="results">Caller-owned list that receives the drawn questions.</param>
+    /// <returns>Number of questions drawn.</returns>
+    public int GetQuestionsByEra(EraType currentEra, int count, List<HistoricalQuestionData> results)
+    {
+        results.Clear();
+
+        if (_eraPoolBuffer == null)
+            _eraPoolBuffer = new List<HistoricalQuestionData>(questions.Count);
+        _eraPoolBuffer.Clear();
+
+        for (int i = 0; i < questions.Count; i++)
         {
-            Debug.LogError("[QuestionBankData] Question pool is empty.", this);
-            return new List<HistoricalQuestionData>();
+            HistoricalQuestionData question = questions[i];
+            if (question != null && question.Era == currentEra)
+                _eraPoolBuffer.Add(question);
         }
 
-        int drawCount = Mathf.Min(count, questions.Count);
+        if (_eraPoolBuffer.Count == 0)
+        {
+            Debug.LogError($"[QuestionBankData] No questions for era {currentEra}.", this);
+            return 0;
+        }
+
+        int drawCount = Mathf.Min(count, _eraPoolBuffer.Count);
         if (drawCount < count)
         {
-            Debug.LogWarning($"[QuestionBankData] Requested {count} questions but only {questions.Count} available.", this);
+            Debug.LogWarning($"[QuestionBankData] Requested {count} {currentEra} questions " +
+                             $"but only {_eraPoolBuffer.Count} available.", this);
         }
-
-        // Create a working copy to shuffle without modifying the asset
-        var pool = new List<HistoricalQuestionData>(questions);
-        var result = new List<HistoricalQuestionData>(drawCount);
 
         // Fisher-Yates partial shuffle — O(drawCount)
         for (int i = 0; i < drawCount; i++)
         {
-            int swapIndex = Random.Range(i, pool.Count);
+            int swapIndex = Random.Range(i, _eraPoolBuffer.Count);
 
-            // Swap
-            HistoricalQuestionData temp = pool[i];
-            pool[i] = pool[swapIndex];
-            pool[swapIndex] = temp;
+            HistoricalQuestionData temp = _eraPoolBuffer[i];
+            _eraPoolBuffer[i] = _eraPoolBuffer[swapIndex];
+            _eraPoolBuffer[swapIndex] = temp;
 
-            result.Add(pool[i]);
+            results.Add(_eraPoolBuffer[i]);
         }
 
-        return result;
-    }
-
-    /// <summary>
-    /// Draws the default number of questions (<see cref="QuestionsPerSession"/>).
-    /// </summary>
-    public List<HistoricalQuestionData> DrawRandomQuestions()
-    {
-        return DrawRandomQuestions(questionsPerSession);
+        _eraPoolBuffer.Clear();
+        return drawCount;
     }
 
     private void OnValidate()
@@ -88,18 +112,29 @@ public class QuestionBankData : ScriptableObject
             questionsPerSession = 1;
         }
 
-        if (questions.Count > 0 && questions.Count < questionsPerSession)
-        {
-            Debug.LogWarning($"[QuestionBankData] Pool size ({questions.Count}) < questionsPerSession ({questionsPerSession}). " +
-                             "Some sessions will draw fewer questions.", this);
-        }
-
-        // Check for nulls
+        // Check for nulls and count questions per era
+        var eraCounts = new int[System.Enum.GetValues(typeof(EraType)).Length];
         for (int i = 0; i < questions.Count; i++)
         {
             if (questions[i] == null)
             {
                 Debug.LogWarning($"[QuestionBankData] Null entry at index {i}.", this);
+                continue;
+            }
+
+            int eraIndex = (int)questions[i].Era;
+            if (eraIndex >= 0 && eraIndex < eraCounts.Length)
+                eraCounts[eraIndex]++;
+        }
+
+        // Sessions draw from one era only, so each non-empty era needs a full session's worth.
+        for (int era = 0; era < eraCounts.Length; era++)
+        {
+            if (eraCounts[era] > 0 && eraCounts[era] < questionsPerSession)
+            {
+                Debug.LogWarning($"[QuestionBankData] Era {(EraType)era} has {eraCounts[era]} questions " +
+                                 $"< questionsPerSession ({questionsPerSession}). " +
+                                 "Sessions in that era will draw fewer questions.", this);
             }
         }
     }

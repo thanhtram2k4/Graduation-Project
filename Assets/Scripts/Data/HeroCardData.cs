@@ -42,6 +42,10 @@ public class HeroCardData : ScriptableObject
              "field governs in-match combat targeting independently.")]
     public HeroClass heroClass;
 
+    [Tooltip("Era this hero belongs to. Drives era-based progression: the draft pool " +
+             "and Ông Bụt question pool can be filtered to a single era.")]
+    public EraType eraType = EraType.History;
+
     // ─────────────────────────────────────────────────────────────────────────
     // VISUALS
     // ─────────────────────────────────────────────────────────────────────────
