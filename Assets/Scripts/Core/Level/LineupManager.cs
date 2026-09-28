@@ -1,13 +1,15 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 // =============================================================================
 // LineupManager.cs
-// Manages the hero deck, Fisher-Yates shuffle, and manual blind pick flow
-// for the pre-match Gallery & Shuffle System (Phase 4).
+// Coordinator for the pre-match Gallery & Shuffle System (Phase 4).
 //
 // Gameplay layer singleton. Communicates with UI exclusively via GameEventBus.
+// Owns lifecycle, bus subscriptions, event publishing, and timing; delegates:
+//   DraftPoolProvider — catalog + unlock-filtered draft pool (DraftPoolBuilder)
+//   HeroDeck          — shuffled draw pile (Fisher-Yates)
+//   BlindPickSession  — pick rules, reveal lock, lineup, confirm-once
 //
 // Data flow (Gallery Mode — no manual draft selection):
 //   [All HeroCardData assets] → Filter isAvailable → [Catalog]
@@ -24,13 +26,10 @@ using UnityEngine;
 // =============================================================================
 
 /// <summary>
-/// Singleton gameplay manager responsible for:
-/// 1. Loading available <see cref="HeroCardData"/> assets
-/// 2. Preparing the deck from ALL available heroes (Gallery Mode)
-/// 3. Executing a zero-allocation Fisher-Yates shuffle
-/// 4. Handling the manual blind pick loop (BlindCardClickedEvent → BlindCardRevealedEvent)
-/// 5. Publishing <see cref="LineupFinalizedEvent"/> when the player confirms via START button
-/// 6. Exposing the final lineup for the in-match HUD roster
+/// Singleton gameplay coordinator for drafting and the blind pick:
+/// builds the draft pool, prepares the shuffled deck, runs the pick loop
+/// (BlindCardClickedEvent → BlindCardRevealedEvent), publishes
+/// <see cref="LineupFinalizedEvent"/>, and exposes the lineup to the HUD roster.
 /// </summary>
 public class LineupManager : MonoBehaviour
 {
@@ -48,77 +47,44 @@ public class LineupManager : MonoBehaviour
     [Tooltip("Reference to the current level's config SO. Reads maxLineupSize.")]
     [SerializeField] private LevelConfig levelConfig;
 
+    private const int DefaultLineupSize = 5;
+
+    /// <summary>Seconds the flip animation gets before the next pick is accepted.</summary>
+    private const float RevealLockSeconds = 0.6f;
+
     // ─────────────────────────────────────────────────────────────────────────
     // Internal State
     // ─────────────────────────────────────────────────────────────────────────
 
-    /// <summary>All available hero cards (isAvailable == true). Cached on init.</summary>
-    private HeroCardData[] _availableHeroes;
-
-    /// <summary>Heroes the player may draft this level: unlocked, padded if too few. Reused list.</summary>
-    private readonly List<HeroCardData> _draftPool = new List<HeroCardData>();
-
-    /// <summary>True once the draft pool has been built for this level.</summary>
-    private bool _draftPoolBuilt;
-
-    // Cached so building the pool never allocates a delegate.
-    private static readonly Predicate<HeroCardData> IsUnlockedInProgression =
-        hero => EraProgressionManager.Instance.IsHeroUnlocked(hero);
-
-    /// <summary>Shuffled deck used during blind pick. Populated from _draftPool.</summary>
-    private HeroCardData[] _shuffledDeck;
-
-    /// <summary>Number of heroes in the shuffled deck.</summary>
-    private int _deckSize;
-
-    /// <summary>Index into _shuffledDeck for the next hero to reveal.</summary>
-    private int _drawIndex;
-
-    /// <summary>Number of heroes drawn so far in the blind pick phase.</summary>
-    private int _drawnCount;
-
-    /// <summary>Final lineup array. Fixed size = maxLineupSize.</summary>
-    private HeroCardData[] _finalLineup;
-
-    /// <summary>True when shuffle animation is complete and picks are accepted.</summary>
-    private bool _awaitingPicks;
-
-    /// <summary>True while a reveal animation is conceptually in-flight (prevents double-click).</summary>
-    private bool _revealInProgress;
-
-    /// <summary>Guard flag — true after ConfirmAndFinalizeLineup() fires once.</summary>
-    private bool _lineupConfirmed;
+    private DraftPoolProvider _pool;
+    private HeroDeck _deck;
+    private BlindPickSession _picks;
 
     // ─────────────────────────────────────────────────────────────────────────
     // Public API (read-only)
     // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>The current draft pool (empty until built on entering Drafting).</summary>
-    public IReadOnlyList<HeroCardData> DraftPool => _draftPool;
+    public IReadOnlyList<HeroCardData> DraftPool => _pool.Pool;
 
     /// <summary>
     /// Number of cards in the shuffled deck. Used by ShuffleCutsceneUI to
     /// spawn the correct number of blind pick card UI elements.
     /// Only valid after PrepareDeckFromDraftPool() has been called.
     /// </summary>
-    public int DeckSize => _deckSize;
+    public int DeckSize => _deck.Size;
 
     /// <summary>Number of heroes drawn so far in the blind pick phase.</summary>
-    public int DrawnCount => _drawnCount;
+    public int DrawnCount => _picks.DrawnCount;
 
     /// <summary>Max lineup size from LevelConfig.</summary>
-    public int MaxLineupSize => levelConfig != null ? levelConfig.maxLineupSize : 5;
+    public int MaxLineupSize => levelConfig != null ? levelConfig.maxLineupSize : DefaultLineupSize;
 
     /// <summary>
     /// Returns the HeroCardData at the given lineup slot index.
     /// Only valid after LineupFinalizedEvent has been published.
     /// </summary>
-    public HeroCardData GetLineupEntry(int slotIndex)
-    {
-        if (_finalLineup == null || slotIndex < 0 || slotIndex >= _drawnCount)
-            return null;
-        return _finalLineup[slotIndex];
-    }
+    public HeroCardData GetLineupEntry(int slotIndex) => _picks?.GetEntry(slotIndex);
 
     /// <summary>
     /// Returns the unit prefab for the given lineup slot.
@@ -148,12 +114,19 @@ public class LineupManager : MonoBehaviour
             return;
         }
 
-        LoadAvailableHeroes();
-        InitializeArrays();
+        _pool = new DraftPoolProvider(DraftPoolProvider.LoadAvailableCatalog());
+
+        // Deck must fit every available hero (Gallery Mode uses the entire pool).
+        int lineupSize = MaxLineupSize;
+        _deck = new HeroDeck(Mathf.Max(_pool.CatalogSize, lineupSize * 2));
+        _picks = new BlindPickSession(lineupSize);
     }
 
     private void OnEnable()
     {
+        // A duplicate destroyed in Awake still receives OnEnable this frame.
+        if (Instance != this) return;
+
         GameEventBus.OnLevelStateChanged += HandleLevelStateChanged;
         GameEventBus.OnShuffleComplete += HandleShuffleComplete;
         GameEventBus.OnBlindCardClicked += HandleBlindCardClicked;
@@ -161,6 +134,8 @@ public class LineupManager : MonoBehaviour
 
     private void OnDisable()
     {
+        if (Instance != this) return;
+
         GameEventBus.OnLevelStateChanged -= HandleLevelStateChanged;
         GameEventBus.OnShuffleComplete -= HandleShuffleComplete;
         GameEventBus.OnBlindCardClicked -= HandleBlindCardClicked;
@@ -175,64 +150,7 @@ public class LineupManager : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Initialization
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Loads all HeroCardData assets from Resources/Data/HeroCards and filters
-    /// to those with isAvailable == true. Index-based loop, no LINQ (Rule 07).
-    /// </summary>
-    private void LoadAvailableHeroes()
-    {
-        HeroCardData[] allCards = Resources.LoadAll<HeroCardData>("Data/HeroCards");
-
-        // Count available cards first to pre-allocate exact size
-        int availableCount = 0;
-        for (int i = 0; i < allCards.Length; i++)
-        {
-            if (allCards[i].isAvailable)
-                availableCount++;
-        }
-
-        _availableHeroes = new HeroCardData[availableCount];
-        int writeIndex = 0;
-        for (int i = 0; i < allCards.Length; i++)
-        {
-            if (allCards[i].isAvailable)
-            {
-                _availableHeroes[writeIndex] = allCards[i];
-                writeIndex++;
-            }
-        }
-
-        Debug.Log($"[LineupManager] Loaded {availableCount} available heroes from {allCards.Length} total cards.");
-    }
-
-    /// <summary>
-    /// Pre-allocates deck and lineup arrays to avoid runtime allocations.
-    /// Deck array sized to fit all available heroes.
-    /// </summary>
-    private void InitializeArrays()
-    {
-        int lineupSize = levelConfig != null ? levelConfig.maxLineupSize : 5;
-        int heroCount = _availableHeroes != null ? _availableHeroes.Length : 0;
-
-        // Deck must fit all available heroes (Gallery Mode uses entire pool)
-        int deckCapacity = Mathf.Max(heroCount, lineupSize * 2);
-        _shuffledDeck = new HeroCardData[deckCapacity];
-        _deckSize = 0;
-        _drawIndex = 0;
-        _drawnCount = 0;
-
-        _finalLineup = new HeroCardData[lineupSize];
-
-        _awaitingPicks = false;
-        _revealInProgress = false;
-        _lineupConfirmed = false;
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Event Handlers — Shuffling Phase
+    // Event Handlers
     // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -254,58 +172,26 @@ public class LineupManager : MonoBehaviour
     /// </summary>
     private void HandleShuffleComplete(ShuffleCompleteEvent evt)
     {
-        _awaitingPicks = true;
+        _picks.BeginPicking();
         Debug.Log("[LineupManager] Shuffle animation complete. Awaiting manual blind picks.");
     }
 
     /// <summary>
     /// Handles a player click on a face-down card during the blind pick phase.
-    /// Pops the next hero from the shuffled deck, adds to lineup, and publishes
-    /// BlindCardRevealedEvent. When maxLineupSize picks are made, stops accepting.
+    /// Draws the next hero into the lineup and publishes BlindCardRevealedEvent.
+    /// Picks stop being accepted once the lineup is full; the player then
+    /// presses START (ConfirmAndFinalizeLineup).
     /// </summary>
     private void HandleBlindCardClicked(BlindCardClickedEvent evt)
     {
-        int maxLineup = levelConfig != null ? levelConfig.maxLineupSize : 5;
-
-        // Guard: ignore if not in pick mode
-        if (!_awaitingPicks)
+        BlindPickRejection rejection = _picks.TryPick(_deck, out HeroCardData revealedHero);
+        if (rejection != BlindPickRejection.None)
         {
-            Debug.LogWarning("[LineupManager] BlindCardClicked ignored — not awaiting picks.");
+            Debug.LogWarning($"[LineupManager] BlindCardClicked ignored — {BlindPickSession.Describe(rejection)}.");
             return;
         }
 
-        // Guard: ignore if all picks already made
-        if (_drawnCount >= maxLineup)
-        {
-            Debug.LogWarning("[LineupManager] BlindCardClicked ignored — lineup already full.");
-            return;
-        }
-
-        // Guard: prevent double-click while reveal is in-flight
-        if (_revealInProgress)
-        {
-            Debug.LogWarning("[LineupManager] BlindCardClicked ignored — reveal in progress.");
-            return;
-        }
-
-        // Guard: no more cards in the deck
-        if (_drawIndex >= _deckSize)
-        {
-            Debug.LogWarning("[LineupManager] BlindCardClicked ignored — shuffled deck exhausted.");
-            return;
-        }
-
-        _revealInProgress = true;
-
-        // Pop the next hero from the shuffled deck (sequential order)
-        HeroCardData revealedHero = _shuffledDeck[_drawIndex];
-        _drawIndex++;
-
-        // Add to final lineup
-        _finalLineup[_drawnCount] = revealedHero;
-        _drawnCount++;
-
-        Debug.Log($"[LineupManager] Revealed '{revealedHero.heroName}' at card index {evt.CardUIIndex}. Drawn: {_drawnCount}/{maxLineup}");
+        Debug.Log($"[LineupManager] Revealed '{revealedHero.heroName}' at card index {evt.CardUIIndex}. Drawn: {_picks.DrawnCount}/{_picks.LineupSize}");
 
         // Publish reveal event so UI can animate the flip
         GameEventBus.Publish(new BlindCardRevealedEvent
@@ -318,58 +204,19 @@ public class LineupManager : MonoBehaviour
         GameEventBus.Publish(new CardFlippedEvent { HeroID = revealedHero.heroID });
         GameEventBus.Publish(new HeroAcceptedEvent { HeroID = revealedHero.heroID });
 
-        // Reset reveal lock after a short delay to allow animation
-        Invoke(nameof(ResetRevealLock), 0.6f);
-
-        // Check if lineup is complete — stop accepting picks but do NOT
-        // auto-finalize. The player must press the START button on the
-        // ShufflePanel, which calls ConfirmAndFinalizeLineup().
-        if (_drawnCount >= maxLineup)
-        {
-            _awaitingPicks = false;
-        }
+        // Accept the next pick once the flip animation has had time to play
+        Invoke(nameof(ReleaseRevealLock), RevealLockSeconds);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Public API — Deck Preparation
+    // Public API — Draft Pool & Deck
     // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Builds the draft pool: available heroes the player has unlocked, padded
-    /// with random locked heroes if fewer than maxLineupSize are unlocked, so
-    /// the blind pick can always complete. Publishes <see cref="DraftPoolBuiltEvent"/>.
-    ///
-    /// If no EraProgressionManager exists (e.g. a test scene), every available
-    /// hero is used and a warning is logged.
+    /// Builds the unlock-filtered draft pool (padded if too few heroes are
+    /// unlocked) and publishes <see cref="DraftPoolBuiltEvent"/>. See <see cref="DraftPoolProvider.Build"/>.
     /// </summary>
-    public void BuildDraftPool()
-    {
-        bool hasProgression = EraProgressionManager.Instance != null;
-        if (!hasProgression)
-            Debug.LogWarning("[LineupManager] No EraProgressionManager in the scene — draft pool is not filtered by unlocks.");
-
-        int lineupSize = MaxLineupSize;
-        DraftPoolStats stats = DraftPoolBuilder.Build(
-            _availableHeroes, hasProgression ? IsUnlockedInProgression : null, lineupSize, _draftPool);
-        _draftPoolBuilt = true;
-
-        if (stats.PaddedCount > 0)
-            Debug.LogWarning($"[LineupManager] Only {stats.UnlockedCount} unlocked heroes for a lineup of {lineupSize}; " +
-                             $"padded the draft with {stats.PaddedCount} locked heroes. Add more starting heroes to EraProgressionManager.");
-
-        if (_draftPool.Count < lineupSize)
-            Debug.LogError($"[LineupManager] Draft pool has {_draftPool.Count} heroes but the lineup needs {lineupSize}; " +
-                           "the blind pick cannot be completed. Add more available HeroCardData assets.");
-
-        Debug.Log($"[LineupManager] Draft pool built: {_draftPool.Count} heroes ({stats.UnlockedCount} unlocked, {stats.PaddedCount} padded).");
-
-        GameEventBus.Publish(new DraftPoolBuiltEvent
-        {
-            Heroes = _draftPool,
-            UnlockedCount = stats.UnlockedCount,
-            PaddedCount = stats.PaddedCount
-        });
-    }
+    public void BuildDraftPool() => _pool.Build(MaxLineupSize);
 
     /// <summary>
     /// Populates the shuffled deck from the draft pool (built first if the
@@ -383,51 +230,19 @@ public class LineupManager : MonoBehaviour
     /// </summary>
     public void PrepareDeckFromDraftPool()
     {
-        if (!_draftPoolBuilt) BuildDraftPool();
+        if (!_pool.IsBuilt) BuildDraftPool();
 
-        int count = _draftPool.Count;
-        if (count == 0)
+        if (_pool.Pool.Count == 0)
         {
             Debug.LogWarning("[LineupManager] PrepareDeck — draft pool is empty.");
             return;
         }
 
-        // Resize deck array if needed (one-time, not in hot path)
-        if (count > _shuffledDeck.Length)
-        {
-            _shuffledDeck = new HeroCardData[count];
-        }
+        _deck.Fill(_pool.Pool);
+        _deck.Shuffle();
+        _picks.Reset();
 
-        for (int i = 0; i < count; i++)
-        {
-            _shuffledDeck[i] = _draftPool[i];
-        }
-        _deckSize = count;
-
-        // Fisher-Yates (Knuth) shuffle — O(n), zero managed-heap allocation
-        // In-place, index-based, no LINQ (Rule 05, Rule 07)
-        for (int i = _deckSize - 1; i > 0; i--)
-        {
-            int j = UnityEngine.Random.Range(0, i + 1);
-            HeroCardData temp = _shuffledDeck[i];
-            _shuffledDeck[i] = _shuffledDeck[j];
-            _shuffledDeck[j] = temp;
-        }
-
-        _drawIndex = 0;
-        _drawnCount = 0;
-        _awaitingPicks = false;
-        _revealInProgress = false;
-        _lineupConfirmed = false;
-
-        Debug.Log($"[LineupManager] Deck prepared from the draft pool. Deck size: {_deckSize}");
-    }
-
-    /// <summary>Test seam: replaces the Resources-loaded catalog and forces a pool rebuild.</summary>
-    internal void OverrideCatalog(HeroCardData[] catalog)
-    {
-        _availableHeroes = catalog ?? Array.Empty<HeroCardData>();
-        _draftPoolBuilt = false;
+        Debug.Log($"[LineupManager] Deck prepared from the draft pool. Deck size: {_deck.Size}");
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -441,25 +256,17 @@ public class LineupManager : MonoBehaviour
     /// </summary>
     public void ConfirmAndFinalizeLineup()
     {
-        int maxLineup = levelConfig != null ? levelConfig.maxLineupSize : 5;
-
-        if (_drawnCount < maxLineup)
+        if (!_picks.IsComplete)
         {
-            Debug.LogWarning($"[LineupManager] Cannot finalize — only {_drawnCount}/{maxLineup} heroes drawn.");
+            Debug.LogWarning($"[LineupManager] Cannot finalize — only {_picks.DrawnCount}/{_picks.LineupSize} heroes drawn.");
             return;
         }
 
-        // Guard against double-call
-        if (!_lineupConfirmed)
-        {
-            _lineupConfirmed = true;
-            PublishLineupFinalized();
-        }
-    }
+        if (!_picks.TryConfirm()) return;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Public API — Campaign Lineup Restore
-    // ─────────────────────────────────────────────────────────────────────────
+        GameEventBus.Publish(new LineupFinalizedEvent { LineupSize = _picks.LineupSize });
+        Debug.Log($"[LineupManager] Lineup finalized with {_picks.LineupSize} heroes.");
+    }
 
     /// <summary>
     /// Forcefully injects a saved lineup from a previous campaign level,
@@ -470,47 +277,19 @@ public class LineupManager : MonoBehaviour
     /// <param name="savedLineup">Hero lineup array carried over from the previous level.</param>
     public void RestoreSavedLineup(HeroCardData[] savedLineup)
     {
-        int count = savedLineup.Length;
+        _picks.Restore(savedLineup);
 
-        // Ensure _finalLineup array is large enough
-        if (_finalLineup == null || _finalLineup.Length < count)
-        {
-            _finalLineup = new HeroCardData[count];
-        }
-
-        for (int i = 0; i < count; i++)
-        {
-            _finalLineup[i] = savedLineup[i];
-        }
-
-        _drawnCount = count;
-        _lineupConfirmed = true;
-
-        GameEventBus.Publish(new LineupFinalizedEvent { LineupSize = _drawnCount });
-
-        Debug.Log($"[LineupManager] Restored saved lineup with {_drawnCount} heroes (campaign).");
+        GameEventBus.Publish(new LineupFinalizedEvent { LineupSize = _picks.DrawnCount });
+        Debug.Log($"[LineupManager] Restored saved lineup with {_picks.DrawnCount} heroes (campaign).");
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Internal Methods
+    // Internal
     // ─────────────────────────────────────────────────────────────────────────
 
-    /// <summary>Resets the reveal-in-progress lock after animation delay.</summary>
-    private void ResetRevealLock()
-    {
-        _revealInProgress = false;
-    }
+    /// <summary>Test seam: replaces the Resources-loaded catalog and forces a pool rebuild.</summary>
+    internal void OverrideCatalog(HeroCardData[] catalog) => _pool.OverrideCatalog(catalog);
 
-    /// <summary>Publishes LineupFinalizedEvent.</summary>
-    private void PublishLineupFinalized()
-    {
-        int maxLineup = levelConfig != null ? levelConfig.maxLineupSize : 5;
-
-        GameEventBus.Publish(new LineupFinalizedEvent
-        {
-            LineupSize = maxLineup
-        });
-
-        Debug.Log($"[LineupManager] Lineup finalized with {maxLineup} heroes.");
-    }
+    /// <summary>Invoked <see cref="RevealLockSeconds"/> after a reveal.</summary>
+    private void ReleaseRevealLock() => _picks.ReleaseRevealLock();
 }
